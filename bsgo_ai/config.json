@@ -1,0 +1,6 @@
+{
+    "session_duration": 1800,
+    "resources": ["WATER", "TITANIUM", "TYLIUM"],
+    "sectors": [],
+    "jump_range": 3
+}
