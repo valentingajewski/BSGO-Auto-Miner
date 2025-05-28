@@ -6,7 +6,7 @@ def scan_asteroid(asteroid_list_temp):
         pyautogui.moveTo(asteroid['x'], asteroid['y'])
         pyautogui.click()
 
-        from bsgo_ai.detectors.ocr_utils import extract_text
+        from bsgo_ai.detectors.text_from_image import extract_text
         distance_text = extract_text((1700, 200, 120, 50))
         try:
             distance = int(''.join(filter(str.isdigit, distance_text)))
@@ -33,7 +33,7 @@ def mining(status, scan_choice):
     for _ in range(5):
         asteroid = detect_asteroid()
         if asteroid:
-            from bsgo_ai.detectors.ocr_utils import extract_text
+            from bsgo_ai.detectors.text_from_image import extract_text
             distance_text = extract_text((1700, 200, 120, 50))
             try:
                 distance = int(''.join(filter(str.isdigit, distance_text)))

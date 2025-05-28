@@ -10,7 +10,7 @@ ROOT_PATH = Path(__file__).resolve().parents[2]
 sys.path.append(str(ROOT_PATH))
 
 from bsgo_ai.detectors.asteroid_detector import detect_asteroid
-from bsgo_ai.detectors.ocr_utils import extract_text
+from bsgo_ai.detectors.text_from_image import extract_text
 from bsgo_ai.actions.keyboard_control import scanning
 
 zone_distance = (455, 84, 40, 20)

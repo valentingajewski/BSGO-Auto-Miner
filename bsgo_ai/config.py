@@ -1,0 +1,5 @@
+# asteroid_detector
+ASTEROID_TO_DETECT = 5
+
+#
+DISTANCE_RECTANGLE_TEXT = (455, 84, 40, 20)
