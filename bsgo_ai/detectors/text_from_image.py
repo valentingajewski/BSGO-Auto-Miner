@@ -27,8 +27,8 @@ def extract_distance_to_asteroid(zone):
     frame = np.array(screenshot)
     frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
-    # Agrandissement léger (x3 max)
-    resized = cv2.resize(frame, None, fx=2.5, fy=2.5, interpolation=cv2.INTER_LINEAR)
+    # Agrandissement léger (x7 max)
+    resized = cv2.resize(frame, None, fx=7, fy=7, interpolation=cv2.INTER_LINEAR)
 
     # Niveau de gris
     gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
@@ -43,4 +43,4 @@ def extract_distance_to_asteroid(zone):
     config = '--psm 7 -c tessedit_char_whitelist=0123456789'
 
     text = pytesseract.image_to_string(thresh, config=config)
-    return text.strip()
+    return int(text.strip())

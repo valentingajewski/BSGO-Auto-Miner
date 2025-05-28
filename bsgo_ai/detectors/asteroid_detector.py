@@ -12,6 +12,7 @@ ROOT_DIR = Path(__file__).resolve().parents[2]
 sys.path.append(str(ROOT_DIR))
 
 from bsgo_ai.config import ASTEROID_TO_DETECT, DISTANCE_RECTANGLE_TEXT
+from bsgo_ai.actions.mining import approach_nearest_asteroid
 
 YOLOV5_PATH = Path(__file__).resolve().parents[2] / "yolov5"
 MODEL_PATH = Path(__file__).resolve().parents[1] / "models" / "best.pt"
@@ -20,6 +21,7 @@ sys.path.append(str(YOLOV5_PATH))
 from models.experimental import attempt_load
 from utils.general import non_max_suppression
 from utils.torch_utils import select_device
+
 
 device = select_device('')
 model = attempt_load(str(MODEL_PATH), device=device)
@@ -84,5 +86,35 @@ def detect_asteroid():
 
     return list_asteroid_temp
 
+
+def detect_nearest_asteroid(list_asteroid_temp):
+    nearest_coords = None
+    nearest_distance = float('inf')
+
+    for i, item in enumerate(list_asteroid_temp):
+        if not isinstance(item, (tuple, list)):
+            print(f"[ERREUR] Élement non-structuré : {item} (type: {type(item)})")
+            continue
+        if len(item) != 3:
+            print(f"[ERREUR] Élement de longueur inattendue à l'index {i} : {item}")
+            continue
+
+        x, y, distance = item
+
+        if distance is not None and distance < nearest_distance:
+            nearest_distance = distance
+            nearest_coords = (x, y)
+        
+        pyautogui.moveTo(nearest_coords, duration=0.1)
+        pyautogui.click()
+    
+    print(f"Nearest asteroid : {nearest_coords}, distance : {nearest_distance}")
+
+    return nearest_coords, nearest_distance
+
+
+
 if __name__ == "__main__":
-    detect_asteroid()
+    list_astero = detect_asteroid()
+    coord, distance = detect_nearest_asteroid(list_astero)
+    approach_nearest_asteroid(coord, distance)

@@ -1,41 +1,41 @@
-
-import time
-import time
-
-import sys
+import math
 from pathlib import Path
+import sys
 
-# Ajoute le chemin racine du projet pour que "bsgo_ai" soit trouvable
-ROOT_PATH = Path(__file__).resolve().parents[2]
-sys.path.append(str(ROOT_PATH))
+ROOT_DIR = Path(__file__).resolve().parents[2]
+sys.path.append(str(ROOT_DIR))
+from bsgo_ai.config import SHIP_VMAX, SHIP_ACCELERATION, MINING_GUN1, MINING_GUN2
 
-from bsgo_ai.detectors.asteroid_detector import detect_asteroid
-from bsgo_ai.detectors.text_from_image import extract_text
-from bsgo_ai.actions.keyboard_control import scanning
+def pc_time(distance):
+    """
+    Calcule le temps nécessaire pour atteindre un astéroïde
+    en partant à l'arrêt avec une accélération constante.
 
-zone_distance = (455, 84, 40, 20)
+    Paramètres :
+    - v_max : vitesse maximale (unités/s)
+    - acceleration : accélération (unités/s²)
+    - distance : distance à parcourir (unités)
 
-while True:
-    found = detect_asteroid()
-    if found:
-        time.sleep(1)
-        text = extract_text(zone_distance)
-        print(f"[OCR] Texte brut lu : '{text}'")
+    Retour :
+    - temps estimé en secondes (float)
+    """
+    v_max = SHIP_VMAX
+    acceleration = SHIP_ACCELERATION
 
-        try:
-            distance_str = ''.join(filter(str.isdigit, text))
-            distance = int(distance_str)
-            print(f"[OCR] Distance extraite : {distance}")
+    if acceleration <= 0 or distance <= 0:
+        return float('inf')
 
-            if distance < 3000:
-                print("[ACTION] Distance < 3000 → SCAN !")
-                scanning()
-                break  # on sort de la boucle pour le test
-            else:
-                print("[ACTION] Trop loin → on continue")
-        except ValueError:
-            print("[OCR] Impossible de lire une distance.")
+    d_accel = (v_max ** 2) / (2 * acceleration)
+
+    if distance > d_accel:
+        t1 = v_max / acceleration
+        d2 = distance - d_accel
+        t2 = d2 / v_max
+        return t1 + t2
     else:
-        print("[INFO] Aucun astéroïde détecté.")
+        return math.sqrt(2 * distance / acceleration)
+    
 
-    time.sleep(1)
+
+if __name__ == "__main__":
+    print(pc_time(1471))
