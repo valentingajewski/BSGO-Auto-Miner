@@ -5,14 +5,14 @@ import cv2
 import sys
 import time
 from pathlib import Path
-from text_from_image import extract_distance_to_asteroid
+from text_from_image import extract_distance_to_asteroid, extract_text
 
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 sys.path.append(str(ROOT_DIR))
 
-from bsgo_ai.config import ASTEROID_TO_DETECT, DISTANCE_RECTANGLE_TEXT
-from bsgo_ai.actions.mining import approach_nearest_asteroid
+from bsgo_ai.config import ASTEROID_TO_DETECT, DISTANCE_RECTANGLE_TEXT, SCAN, MINERAL_ANALYSIS_TEXT_ZONE
+from bsgo_ai.actions.mining import approach_nearest_asteroid, moveToCursorCoords
 
 YOLOV5_PATH = Path(__file__).resolve().parents[2] / "yolov5"
 MODEL_PATH = Path(__file__).resolve().parents[1] / "models" / "best.pt"
@@ -112,9 +112,17 @@ def detect_nearest_asteroid(list_asteroid_temp):
 
     return nearest_coords, nearest_distance
 
+def scan_asteroid(coords, scan_key):
+    moveToCursorCoords(coords, 'left')
+    pyautogui.press(scan_key)
+    time.sleep(5.5)
+    print(extract_text(MINERAL_ANALYSIS_TEXT_ZONE))
 
 
 if __name__ == "__main__":
     list_astero = detect_asteroid()
     coord, distance = detect_nearest_asteroid(list_astero)
-    approach_nearest_asteroid(coord, distance)
+
+    scan_asteroid(coord, SCAN)
+
+    #approach_nearest_asteroid(coord, distance)

@@ -8,7 +8,7 @@ import numpy as np
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 # Coordonnées de la zone (x, y, largeur, hauteur)
-zone = (455, 84, 40, 20)
+zone = (1140, 117, 280, 30)
 
 # Capture de la zone
 x, y, w, h = zone
@@ -27,7 +27,7 @@ while True:
 
     # OCR
     text = pytesseract.image_to_string(gray, config='--psm 6')
-    print("Distance to Asteroid", text.strip())
+    print("Text :", text.strip())
 
     # Sauvegarde image pour debug
     cv2.imwrite("ocr_zone_debug.png", gray)

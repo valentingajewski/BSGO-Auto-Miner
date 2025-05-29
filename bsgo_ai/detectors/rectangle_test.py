@@ -9,7 +9,7 @@ frame = np.array(screenshot)
 frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
 # Dessin du rectangle
-x, y, w, h = 455, 84, 34, 12
+x, y, w, h = 1140, 117, 280, 30
 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
 # Affichage

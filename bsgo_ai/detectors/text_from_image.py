@@ -9,7 +9,6 @@ pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tessera
 
 def extract_text(zone):
 
-    # zone = (455, 84, 40, 20)
     x, y, w, h = zone
     screenshot = pyautogui.screenshot(region=(x, y, w, h))
     frame = np.array(screenshot)
