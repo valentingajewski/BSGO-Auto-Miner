@@ -10,7 +10,8 @@ from text_from_image import extract_distance_to_asteroid, extract_text
 ROOT_DIR = Path(__file__).resolve().parents[2]
 sys.path.append(str(ROOT_DIR))
 
-from bsgo_ai.config import ASTEROID_TO_DETECT, DISTANCE_RECTANGLE_TEXT, SCAN, MINERAL_ANALYSIS_TEXT_ZONE
+from bsgo_ai.config import (ASTEROID_TO_DETECT, DISTANCE_RECTANGLE_TEXT, SCAN, MINERAL_ANALYSIS_TEXT_ZONE, SESSION_TIME,
+                            SHIP_TURNING_SPEED)
 from bsgo_ai.actions.mining import approach_nearest_asteroid, moveToCursorCoords
 
 YOLOV5_PATH = Path(__file__).resolve().parents[2] / "yolov5"
@@ -101,36 +102,60 @@ def scan_asteroid(coords, scan_key):
     time.sleep(5.5)
     return extract_text(MINERAL_ANALYSIS_TEXT_ZONE)
 
-if __name__ == "__main__":
-    attempts = 0
-    max_attempts = ASTEROID_TO_DETECT
+def turning_rotation(ship_turning_speed):
+    return (360 / ship_turning_speed) / 4.0
 
-    while attempts < max_attempts:
-        result = detect_asteroid()
+def main(start_time=None, max_duration=None):
+    full_rotation = 0
+    max_quarters = 4
+    ship_turning_speed = SHIP_TURNING_SPEED
 
-        if result is None:
-            attempts += 1
-            continue
+    if start_time is None:
+        start_time = time.time()
+    if max_duration is None:
+        max_duration = SESSION_TIME*60  # Durée par défaut : 10 minutes
 
-        x, y, distance = result
+    while full_rotation < max_quarters and time.time() - start_time < max_duration:
+        attempts = 0
 
-        if distance is None or distance > 3000:
-            print(f"Astéroïde ignoré (distance trop grande) : {distance}")
-            attempts += 1
-            continue
+        while attempts < ASTEROID_TO_DETECT:
+            result = detect_asteroid()
 
-        coords = (x, y)
-        print(f"Scan de l'astéroïde à {coords}, distance : {distance}")
-        mineral_result = scan_asteroid(coords, SCAN)
-        time.sleep(1)
+            if result is None:
+                attempts += 1
+                continue
 
-        if "WATER" in mineral_result.upper():
-            print("Ressource WATER détectée, approche en cours...")
-            approach_nearest_asteroid(coords, distance)
-            break
+            x, y, distance = result
+
+            if distance is None or distance > 3000:
+                print(f"Astéroïde ignoré (distance trop grande) : {distance}")
+                attempts += 1
+                continue
+
+            coords = (x, y)
+            print(f"Scan de l'astéroïde à {coords}, distance : {distance}")
+            mineral_result = scan_asteroid(coords, SCAN)
+
+            if "WATER" in mineral_result.upper():
+                print("Ressource WATER détectée, approche en cours...")
+                approach_nearest_asteroid(coords, distance)
+                # Reprise de la boucle après approche
+                break
+            else:
+                print("Ressource non intéressante, tentative suivante...")
+                attempts += 1
+
         else:
-            print("Ressource non intéressante, tentative suivante...")
-            attempts += 1
+            print("Rotation du vaisseau d'un quart de tour...")
+            pyautogui.press('c')
+            pyautogui.keyDown('q')
+            time.sleep(turning_rotation(ship_turning_speed))
+            pyautogui.keyUp('q')
+            full_rotation += 1
+            time.sleep(5)
+            continue  # on passe au prochain quart de tour
 
-    if attempts >= max_attempts:
-        print("Scan des astéroïdes terminé. Aucun WATER trouvé.")
+    print("Recherche terminée : Aucun astéroïde WATER trouvé après un tour complet ou durée dépassée.")
+
+if __name__ == "__main__":
+    main()

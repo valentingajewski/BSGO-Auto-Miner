@@ -7,7 +7,7 @@ import sys
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 sys.path.append(str(ROOT_DIR))
-from bsgo_ai.config import SHIP_VMAX, SHIP_PC_ACCELERATION, MINING_GUN1, MINING_GUN2, RESET_CURSOR_POSITION
+from bsgo_ai.config import SHIP_VMAX, SHIP_PC_ACCELERATION, MINING_GUN1, MINING_GUN2, RESET_CURSOR_POSITION, TARGET_CURSOR_COORDS
 
 def moveToCursorCoords(coords, side):
     pyautogui.moveTo(coords, duration=0.1)
@@ -26,6 +26,9 @@ def pc_time(distance):
     Retour :
     - temps estimé en secondes (float)
     """
+    if distance <= 700:
+        return 0.0
+
     adjusted_distance = max(0, distance - 700)
     v_max = SHIP_VMAX
     acceleration = SHIP_PC_ACCELERATION
@@ -42,7 +45,6 @@ def pc_time(distance):
         return t1 + t2
     else:
         return math.sqrt(2 * adjusted_distance / acceleration)
-
 
 def approach_nearest_asteroid(coords, distance):
     """
@@ -66,12 +68,6 @@ def approach_nearest_asteroid(coords, distance):
 
     print(f"Début de l'approche. Durée estimée : {duration:.2f}s")
 
-    """
-    print(f"[DEBUG] Left clicking on coordinates: {x,y}")
-    moveToCursorCoords((x,y),'left')
-    time.sleep(0.2)
-    """
-
     # Shift + T
     print(f"[DEBUG] Pressing SHIFT + T")
     pyautogui.keyDown('shift')
@@ -79,15 +75,17 @@ def approach_nearest_asteroid(coords, distance):
     pyautogui.keyUp('shift')
 
     print(f"[DEBUG] Right Clicking on coordinates: {x,y}")
-    moveToCursorCoords((x,y),'right')
+    moveToCursorCoords((TARGET_CURSOR_COORDS),'right')
     time.sleep(0.2)
 
-
     hold_time = max(0, duration)
-    print(f"Maintien de la touche ESPACE pendant {hold_time:.2f}s")
-    pyautogui.press('space')
-    time.sleep(hold_time)
-    pyautogui.press('space')
+    if hold_time > 0:
+        print(f"Maintien de la touche ESPACE pendant {hold_time:.2f}s")
+        pyautogui.press('space')
+        time.sleep(hold_time)
+        pyautogui.press('space')
+    else:
+        print("Pas besoin de propulsion : l'astéroïde est très proche.")
 
     # Appuyer sur Q pendant 2 secondes
     pyautogui.keyDown('q')
@@ -101,6 +99,10 @@ def approach_nearest_asteroid(coords, distance):
 
     pyautogui.press('.')
 
-
-
     print("Approche terminée.")
+
+    time.sleep(20)
+
+    moveToCursorCoords(MINING_GUN1, 'left')
+    time.sleep(0.2)
+    moveToCursorCoords(MINING_GUN2, 'left')
