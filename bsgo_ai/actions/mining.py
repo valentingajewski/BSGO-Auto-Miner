@@ -26,21 +26,22 @@ def pc_time(distance):
     Retour :
     - temps estimé en secondes (float)
     """
+    adjusted_distance = max(0, distance - 1000)
     v_max = SHIP_VMAX
     acceleration = SHIP_PC_ACCELERATION
 
-    if acceleration <= 0 or distance <= 0:
-        return float('inf')
+    if acceleration <= 0 or adjusted_distance <= 0:
+        return float('inf')  # Cas non physique ou déjà arrivé
 
     d_accel = (v_max ** 2) / (2 * acceleration)
 
-    if distance > d_accel:
+    if adjusted_distance > d_accel:
         t1 = v_max / acceleration
-        d2 = distance - d_accel
+        d2 = adjusted_distance - d_accel
         t2 = d2 / v_max
         return t1 + t2
     else:
-        return math.sqrt(2 * distance / acceleration)
+        return math.sqrt(2 * adjusted_distance / acceleration)
 
 
 def approach_nearest_asteroid(coords, distance):
@@ -65,21 +66,24 @@ def approach_nearest_asteroid(coords, distance):
 
     print(f"Début de l'approche. Durée estimée : {duration:.2f}s")
 
-    # Clic droit sur les coordonnées
+    """
+    print(f"[DEBUG] Left clicking on coordinates: {x,y}")
     moveToCursorCoords((x,y),'left')
     time.sleep(0.2)
-    moveToCursorCoords((x,y),'right')
-    time.sleep(0.2)
+    """
 
     # Shift + T
+    print(f"[DEBUG] Pressing SHIFT + T")
     pyautogui.keyDown('shift')
     pyautogui.press('t')
     pyautogui.keyUp('shift')
-    time.sleep(2)
+
+    print(f"[DEBUG] Right Clicking on coordinates: {x,y}")
+    moveToCursorCoords((x,y),'right')
+    time.sleep(0.2)
 
 
-    # Maintenir ESPACE pendant (durée - 10)
-    hold_time = max(0, duration - 10)
+    hold_time = max(0, duration)
     print(f"Maintien de la touche ESPACE pendant {hold_time:.2f}s")
     pyautogui.press('space')
     time.sleep(hold_time)
