@@ -7,7 +7,6 @@ import time
 from pathlib import Path
 from text_from_image import extract_distance_to_asteroid, extract_text
 
-
 ROOT_DIR = Path(__file__).resolve().parents[2]
 sys.path.append(str(ROOT_DIR))
 
@@ -21,7 +20,6 @@ sys.path.append(str(YOLOV5_PATH))
 from models.experimental import attempt_load
 from utils.general import non_max_suppression
 from utils.torch_utils import select_device
-
 
 device = select_device('')
 model = attempt_load(str(MODEL_PATH), device=device)
@@ -86,7 +84,6 @@ def detect_asteroid():
 
     return list_asteroid_temp
 
-
 def detect_nearest_asteroid(list_asteroid_temp):
     nearest_coords = None
     nearest_distance = float('inf')
@@ -104,10 +101,7 @@ def detect_nearest_asteroid(list_asteroid_temp):
         if distance is not None and distance < nearest_distance:
             nearest_distance = distance
             nearest_coords = (x, y)
-        
-        pyautogui.moveTo(nearest_coords, duration=0.1)
-        pyautogui.click()
-    
+
     print(f"Nearest asteroid : {nearest_coords}, distance : {nearest_distance}")
 
     return nearest_coords, nearest_distance
@@ -116,13 +110,29 @@ def scan_asteroid(coords, scan_key):
     moveToCursorCoords(coords, 'left')
     pyautogui.press(scan_key)
     time.sleep(5.5)
-    print(extract_text(MINERAL_ANALYSIS_TEXT_ZONE))
-
+    return extract_text(MINERAL_ANALYSIS_TEXT_ZONE)
 
 if __name__ == "__main__":
     list_astero = detect_asteroid()
-    coord, distance = detect_nearest_asteroid(list_astero)
 
-    scan_asteroid(coord, SCAN)
+    scanned_or_skipped = 0
+    for (x, y, distance) in sorted(list_astero, key=lambda a: a[2]):
+        if distance is None or distance > 3000:
+            print(f"Astéroïde ignoré (distance trop grande) : {distance}")
+            scanned_or_skipped += 1
+            continue
 
-    #approach_nearest_asteroid(coord, distance)
+        coords = (x, y)
+        print(f"Scan de l'astéroïde à {coords}, distance : {distance}")
+        result = scan_asteroid(coords, SCAN)
+
+        if "WATER" in result:
+            print("Ressource WATER détectée, approche en cours...")
+            approach_nearest_asteroid(coords, distance)
+            break
+        else:
+            print("Ressource non intéressante, passage au suivant.")
+            scanned_or_skipped += 1
+
+        if scanned_or_skipped >= len(list_astero):
+            print("Scan des 5 astéroïdes terminé. Aucun WATER trouvé.")
