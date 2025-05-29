@@ -12,7 +12,7 @@ sys.path.append(str(ROOT_DIR))
 
 from bsgo_ai.config import (ASTEROID_TO_DETECT, DISTANCE_RECTANGLE_TEXT, SCAN, MINERAL_ANALYSIS_TEXT_ZONE, SESSION_TIME,
                             SHIP_TURNING_SPEED)
-from bsgo_ai.actions.mining import approach_nearest_asteroid, moveToCursorCoords
+from bsgo_ai.actions.mining import approach_water_asteroid, moveToCursorCoords, approach_nearest_asteroid
 
 YOLOV5_PATH = Path(__file__).resolve().parents[2] / "yolov5"
 MODEL_PATH = Path(__file__).resolve().parents[1] / "models" / "best.pt"
@@ -138,9 +138,9 @@ def main(start_time=None, max_duration=None):
 
             if "WATER" in mineral_result.upper():
                 print("Ressource WATER détectée, approche en cours...")
-                approach_nearest_asteroid(coords, distance)
+                approach_water_asteroid(coords, distance)
                 # Reprise de la boucle après approche
-                break
+                return main(start_time, max_duration)
             else:
                 print("Ressource non intéressante, tentative suivante...")
                 attempts += 1
@@ -156,6 +156,17 @@ def main(start_time=None, max_duration=None):
             continue  # on passe au prochain quart de tour
 
     print("Recherche terminée : Aucun astéroïde WATER trouvé après un tour complet ou durée dépassée.")
+
+        # Détection et approche de l'astéroïde le plus proche à la fin de la rotation complète
+    print("Détection finale : approche de l'astéroïde le plus proche...")
+    asteroid_list = []
+    for _ in range(ASTEROID_TO_DETECT):
+        result = detect_asteroid()
+        if result is not None:
+            asteroid_list.append(result)
+    if asteroid_list:
+        coords, distance = detect_nearest_asteroid(asteroid_list)
+        approach_nearest_asteroid(coords, distance)
 
 if __name__ == "__main__":
     main()

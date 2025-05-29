@@ -39,4 +39,4 @@ def extract_distance_to_asteroid(zone):
     cv2.imwrite("ocr_zone_debug.png", img)
 
     result = reader.readtext(img, detail=0)
-    return int(result[0].lower().strip().replace('o','0').replace('i', '1'))
+    return int(result[0].lower().strip().replace('o','0').replace('i', '1').replace('b','8'))

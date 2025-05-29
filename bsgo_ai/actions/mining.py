@@ -46,9 +46,9 @@ def pc_time(distance):
     else:
         return math.sqrt(2 * adjusted_distance / acceleration)
 
-def approach_nearest_asteroid(coords, distance):
+def approach_water_asteroid(coords, distance):
     """
-    Approche automatiquement l'astéroïde le plus proche.
+    Approche automatiquement l'astéroïde d'eau
 
     - Calcule le temps de parcours avec pc_time.
     - Lance la séquence de touches pour l'approche.
@@ -106,3 +106,44 @@ def approach_nearest_asteroid(coords, distance):
     moveToCursorCoords(MINING_GUN1, 'left')
     time.sleep(0.2)
     moveToCursorCoords(MINING_GUN2, 'left')
+
+def approach_nearest_asteroid(coords, distance):
+    """
+    Approche automatiquement l'astéroïde d'eau
+
+    - Calcule le temps de parcours avec pc_time.
+    - Lance la séquence de touches pour l'approche.
+
+    :param distance: distance à parcourir (int ou float)
+    :param coords: tuple (x, y) des coordonnées de l'astéroïde
+    :param v_max: vitesse max du vaisseau
+    :param acceleration: accélération du vaisseau
+    """
+
+    x, y = coords
+    duration = pc_time(distance)
+
+    if duration == float('inf'):
+        print("Temps de parcours invalide.")
+        return
+
+    print(f"Début de l'approche. Durée estimée : {duration:.2f}s")
+
+    # Shift + T
+    print(f"[DEBUG] Pressing SHIFT + T")
+    pyautogui.keyDown('shift')
+    pyautogui.press('t')
+    pyautogui.keyUp('shift')
+
+    print(f"[DEBUG] Right Clicking on coordinates: {x,y}")
+    moveToCursorCoords((TARGET_CURSOR_COORDS),'right')
+    time.sleep(0.2)
+
+    hold_time = max(0, duration)
+    if hold_time > 0:
+        print(f"Maintien de la touche ESPACE pendant {hold_time:.2f}s")
+        pyautogui.press('space')
+        time.sleep(hold_time)
+        pyautogui.press('space')
+    else:
+        print("Pas besoin de propulsion : l'astéroïde est très proche.")
