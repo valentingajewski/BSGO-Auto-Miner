@@ -3,33 +3,40 @@ import pytesseract
 import cv2
 import time
 import numpy as np
+import easyocr
+
 
 # Chemin vers Tesseract
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 # Coordonnées de la zone (x, y, largeur, hauteur)
-zone = (1140, 117, 280, 30)
+zone = (455, 84, 40, 15)
 
-# Capture de la zone
-x, y, w, h = zone
+reader = easyocr.Reader(['en'])
 
 while True:
 
+    
+
+    x, y, w, h = zone
     screenshot = pyautogui.screenshot(region=(x, y, w, h))
-    frame = np.array(screenshot)
-    frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+    img = np.array(screenshot)
+    img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    img = cv2.resize(img, None, fx=5, fy=5, interpolation=cv2.INTER_LINEAR)
 
-    # Redimensionner (agrandir 3x)
-    resized = cv2.resize(frame, None, fx=7, fy=7, interpolation=cv2.INTER_CUBIC)
+    _, img = cv2.threshold(img, 100, 255, cv2.THRESH_BINARY)
+    img = cv2.GaussianBlur(img, (3, 3), 0)
 
-    # Convertir en niveaux de gris
-    gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
+    config = '--psm 7 -c tessedit_char_whitelist=0123456789'
 
-    # OCR
-    text = pytesseract.image_to_string(gray, config='--psm 6')
-    print("Text :", text.strip())
+    #text = pytesseract.image_to_string(img, config=config)
+    #print("Text :", text.strip())
+    cv2.imwrite("ocr_zone_debug.png", img)
 
-    # Sauvegarde image pour debug
-    cv2.imwrite("ocr_zone_debug.png", gray)
 
-    time.sleep(2)
+
+    result = reader.readtext('ocr_zone_debug.png', detail=0)
+    print(result)
+
+    time.sleep(1)
+

@@ -2,9 +2,11 @@ import pytesseract
 import pyautogui
 import cv2
 import numpy as np
+import easyocr
 
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+reader = easyocr.Reader(['en'])
 
 
 def extract_text(zone):
@@ -23,23 +25,18 @@ def extract_text(zone):
 def extract_distance_to_asteroid(zone):
     x, y, w, h = zone
     screenshot = pyautogui.screenshot(region=(x, y, w, h))
-    frame = np.array(screenshot)
-    frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+    img = np.array(screenshot)
+    img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    img = cv2.resize(img, None, fx=5, fy=5, interpolation=cv2.INTER_LINEAR)
 
-    # Agrandissement léger (x7 max)
-    resized = cv2.resize(frame, None, fx=7, fy=7, interpolation=cv2.INTER_LINEAR)
+    _, img = cv2.threshold(img, 100, 255, cv2.THRESH_BINARY)
+    img = cv2.GaussianBlur(img, (3, 3), 0)
 
-    # Niveau de gris
-    gray = cv2.cvtColor(resized, cv2.COLOR_BGR2GRAY)
-
-    # Léger flou pour supprimer bruit
-    blurred = cv2.GaussianBlur(gray, (3, 3), 0)
-
-    # Seuillage binaire automatique
-    _, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-
-    # OCR uniquement chiffres
     config = '--psm 7 -c tessedit_char_whitelist=0123456789'
 
-    text = pytesseract.image_to_string(thresh, config=config)
-    return int(text.strip())
+    #text = pytesseract.image_to_string(img, config=config)
+    #print("Text :", text.strip())
+    cv2.imwrite("ocr_zone_debug.png", img)
+
+    result = reader.readtext(img, detail=0)
+    return int(result[0].lower().strip().replace('o','0').replace('i', '1'))

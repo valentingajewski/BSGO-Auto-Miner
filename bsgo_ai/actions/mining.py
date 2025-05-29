@@ -7,7 +7,7 @@ import sys
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 sys.path.append(str(ROOT_DIR))
-from bsgo_ai.config import SHIP_VMAX, SHIP_PC_ACCELERATION, MINING_GUN1, MINING_GUN2
+from bsgo_ai.config import SHIP_VMAX, SHIP_PC_ACCELERATION, MINING_GUN1, MINING_GUN2, RESET_CURSOR_POSITION
 
 def moveToCursorCoords(coords, side):
     pyautogui.moveTo(coords, duration=0.1)
@@ -26,7 +26,7 @@ def pc_time(distance):
     Retour :
     - temps estimé en secondes (float)
     """
-    adjusted_distance = max(0, distance - 1000)
+    adjusted_distance = max(0, distance - 700)
     v_max = SHIP_VMAX
     acceleration = SHIP_PC_ACCELERATION
 
@@ -98,6 +98,9 @@ def approach_nearest_asteroid(coords, distance):
     moveToCursorCoords(MINING_GUN1, 'left')
     time.sleep(0.2)
     moveToCursorCoords(MINING_GUN2, 'left')
+
+    pyautogui.press('.')
+
 
 
     print("Approche terminée.")

@@ -35,7 +35,6 @@ class_names = [
 ]
 
 def detect_asteroid():
-    list_asteroid_temp = []
     screenshot = pyautogui.screenshot()
     frame = np.array(screenshot)
     frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
@@ -51,7 +50,6 @@ def detect_asteroid():
         detections = non_max_suppression(pred, conf_thres=0.5, iou_thres=0.45)[0]
 
     if detections is not None and len(detections):
-        count = 0
         screen_w, screen_h = pyautogui.size()
         scale_x = screen_w / 640
         scale_y = screen_h / 640
@@ -68,21 +66,12 @@ def detect_asteroid():
                 pyautogui.click()
                 distance_asteroid = extract_distance_to_asteroid(DISTANCE_RECTANGLE_TEXT)
 
-                list_asteroid_temp.append((center_x, center_y, distance_asteroid))
                 print(f"Astéroïde détecté : {label} à ({center_x}, {center_y}), distance : {distance_asteroid}, confiance : {conf:.2f}")
 
-                count += 1
-                time.sleep(1)
+                return (center_x, center_y, distance_asteroid)
 
-                if count >= ASTEROID_TO_DETECT:
-                    break
-
-    if not list_asteroid_temp:
-        print("Aucun astéroïde détecté.")
-    else:
-        print(f"Total astéroïdes détectés : {len(list_asteroid_temp)}")
-
-    return list_asteroid_temp
+    print("Aucun astéroïde détecté.")
+    return None
 
 def detect_nearest_asteroid(list_asteroid_temp):
     nearest_coords = None
@@ -113,26 +102,35 @@ def scan_asteroid(coords, scan_key):
     return extract_text(MINERAL_ANALYSIS_TEXT_ZONE)
 
 if __name__ == "__main__":
-    list_astero = detect_asteroid()
+    attempts = 0
+    max_attempts = ASTEROID_TO_DETECT
 
-    scanned_or_skipped = 0
-    for (x, y, distance) in sorted(list_astero, key=lambda a: a[2]):
+    while attempts < max_attempts:
+        result = detect_asteroid()
+
+        if result is None:
+            attempts += 1
+            continue
+
+        x, y, distance = result
+
         if distance is None or distance > 3000:
             print(f"Astéroïde ignoré (distance trop grande) : {distance}")
-            scanned_or_skipped += 1
+            attempts += 1
             continue
 
         coords = (x, y)
         print(f"Scan de l'astéroïde à {coords}, distance : {distance}")
-        result = scan_asteroid(coords, SCAN)
+        mineral_result = scan_asteroid(coords, SCAN)
+        time.sleep(1)
 
-        if "WATER" in result:
+        if "WATER" in mineral_result.upper():
             print("Ressource WATER détectée, approche en cours...")
             approach_nearest_asteroid(coords, distance)
             break
         else:
-            print("Ressource non intéressante, passage au suivant.")
-            scanned_or_skipped += 1
+            print("Ressource non intéressante, tentative suivante...")
+            attempts += 1
 
-        if scanned_or_skipped >= len(list_astero):
-            print("Scan des 5 astéroïdes terminé. Aucun WATER trouvé.")
+    if attempts >= max_attempts:
+        print("Scan des astéroïdes terminé. Aucun WATER trouvé.")
