@@ -1,27 +1,19 @@
-PLAYER_STATUS = "MINING"
+import time
+import pyautogui
+from mining import moveToCursorCoords
+from config import RESPAWN_BUTTON, PS_INBASE, ENABLE_ALL_GUNS, POST_COMBUSTION, PITCH_DOWN, PITCH_UP, TURN_LEFT
 
-def player_status_detection():
-    combat_log = text_from_image(zone_du_jeu_a_observer_combat_log)
-    sector = text_from_image(zone_du_jeu_a_observer_sector)
-    if "deals damage to you" in combat_log:
-        PLAYER_STATUS = "IN COMBAT"
-    if "killed you" in combat_log:
-        PLAYER_STATUS = "KILLED"
-    if sector is False:
-        PLAYER_STATUS = "IN BASE"
+def combat():
+    from player_status import PLAYER_STATUS
+    pyautogui.press(ENABLE_ALL_GUNS)
+    pyautogui.press(POST_COMBUSTION)
+    pyautogui.keyDown(TURN_LEFT)
+    pyautogui.keyDown(PITCH_UP)
+    time.sleep(20)
+    pyautogui.keyUp(TURN_LEFT)
+    pyautogui.keyUp(PITCH_UP)
+    return PLAYER_STATUS
 
-def status():
-    while True:
-        if PLAYER_STATUS == "MINING":
-            main()
-        if PLAYER_STATUS == "IN COMBAT":
-            combat()
-        if PLAYER_STATUS == "KILLED":
-            killed_procedure()
-        if PLAYER_STATUS == "IN BASE":
-            repair()
-            undock()
-        if PLAYER_STATUS == "JUMPING":
-            jump()
-
-        player_status_detection()
+if __name__ == '__main__':
+    time.sleep(2)
+    combat()

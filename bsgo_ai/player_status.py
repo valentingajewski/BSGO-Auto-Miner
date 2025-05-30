@@ -9,16 +9,6 @@ from base_procedure import repair, undock
 from config import COMBAT_LOG_ZONE, SECTOR_TEXT_POSITION, PS_MINING, PS_IN_COMBAT, PS_INBASE, PS_JUMP, PS_KILLED
 from jump import jump
 
-PLAYER_STATUS = PS_MINING
-
-is_terminated = False
-
-def signal_handler(sig, frame):
-    print('You pressed Ctrl+C!')
-    is_terminated = True
-
-signal.signal(signal.SIGINT, signal_handler)
-
 def detect_if_damage_to_player(lines):
     """
     Détermine si le joueur est attaqué en comptant les occurrences de messages de dégâts.
@@ -38,47 +28,46 @@ def detect_if_damage_to_player(lines):
 def detect_if_player_is_killed(zone):
     lines = extract_text(zone)
     for line in lines:
-        if "killed" in line:
+        if "You have been destroyed" in line:
             return True
-
 
 def player_status_detection():
     combat_log = detect_if_damage_to_player(extract_text(COMBAT_LOG_ZONE))
     sector = extract_text(SECTOR_TEXT_POSITION)
+    print(f'[INFO] Sector: {sector}')
     if combat_log >= 2:
         PLAYER_STATUS = PS_IN_COMBAT
     if detect_if_player_is_killed(COMBAT_LOG_ZONE):
         PLAYER_STATUS = PS_KILLED
-    if sector is False:
+    if len(sector) == 0 or len(sector[0]) <= 5:
         PLAYER_STATUS = PS_INBASE
     else:
         PLAYER_STATUS = PS_MINING
 
+    print(f'[INFO] Player Status: {PLAYER_STATUS}')
     return PLAYER_STATUS
 
 def status():
-    print(f'[DEBUG] {is_terminated}')
-    while not is_terminated:
-        print('[DEBUG] While loop')
+    global PLAYER_STATUS
+    while True:
         if PLAYER_STATUS == PS_MINING:
-            print('[DEBUG] MINING')
-            mining_status()
-        if PLAYER_STATUS == PS_IN_COMBAT:
-            print('[DEBUG] IN COMBAT')
-            combat()
-        if PLAYER_STATUS == PS_KILLED:
-            print('[DEBUG] KILLED')
-            killed_procedure()
-        if PLAYER_STATUS == PS_INBASE:
-            print('[DEBUG] IN BASE')
+            PLAYER_STATUS = mining_status()
+        elif PLAYER_STATUS == PS_IN_COMBAT:
+            PLAYER_STATUS = combat()
+        elif PLAYER_STATUS == PS_KILLED:
+            PLAYER_STATUS = killed_procedure()
+        elif PLAYER_STATUS == PS_INBASE:
             repair()
-            undock()
-        if PLAYER_STATUS == PS_JUMP:
-            print('[DEBUG] JUMP')
-            jump()
+            PLAYER_STATUS = undock()
+        elif PLAYER_STATUS == PS_JUMP:
+            PLAYER_STATUS = jump()
+        else:
+            print(PLAYER_STATUS)
         
-        print(f'[DEBUG] check status: {PLAYER_STATUS}')
+        print(f'[INFO] Checking status: {PLAYER_STATUS}')
         player_status_detection()
+
+PLAYER_STATUS = player_status_detection()
 
 if __name__ == "__main__":
     status()

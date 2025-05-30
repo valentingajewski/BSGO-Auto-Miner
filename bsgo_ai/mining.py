@@ -5,7 +5,7 @@ import keyboard
 from pathlib import Path
 import sys
 
-from config import SHIP_VMAX, SHIP_PC_ACCELERATION, MINING_GUN1, MINING_GUN2, RESET_CURSOR_POSITION, TARGET_CURSOR_COORDS
+from config import SHIP_VMAX, SHIP_PC_ACCELERATION, MINING_GUN1, MINING_GUN2, RESET_CURSOR_POSITION, TARGET_CURSOR_COORDS, CANCEL_TARGET
 
 def moveToCursorCoords(coords, side):
     pyautogui.moveTo(coords, duration=0.1)
@@ -64,21 +64,20 @@ def approach_water_asteroid(coords, distance):
         print("Temps de parcours invalide.")
         return
 
-    print(f"Début de l'approche. Durée estimée : {duration:.2f}s")
+    print(f"[ACTION] Approaching asteroid, estimated arrival in: {duration:.2f}s")
 
-    print(f"[DEBUG] Right Clicking on coordinates: {x,y}")
+    print(f"[INFO] Right clicking on coordinates: {x,y}")
     moveToCursorCoords((TARGET_CURSOR_COORDS),'right')
     time.sleep(0.2)
 
     hold_time = max(0, duration)
     if hold_time > 0:
-        print(f"Maintien de la touche ESPACE pendant {hold_time:.2f}s")
         pyautogui.press('space')
         time.sleep(hold_time)
         pyautogui.press('space')
     else:
         time.sleep(3)
-        print("Pas besoin de propulsion : l'astéroïde est très proche.")
+        print("[INFO] Asteroid is close. No thrust needeed")
 
     # Appuyer sur Q pendant 2 secondes
     pyautogui.keyDown('q')
@@ -91,7 +90,7 @@ def approach_water_asteroid(coords, distance):
 
     pyautogui.press('.')
 
-    print("Approche terminée.")
+    print("[INFO] Asteroid approach finished")
 
     time.sleep(20)
 
@@ -109,17 +108,17 @@ def approach_nearest_asteroid(coords, distance):
         print("Temps de parcours invalide.")
         return
 
-    print(f"Début de l'approche. Durée estimée : {duration:.2f}s")
+    print(f"[ACTION] Approaching asteroid, estimated arrival in: {duration:.2f}s")
 
-    print(f"[DEBUG] Right Clicking on coordinates: {x,y}")
+    print(f"[DEBUG] Right clicking on coordinates: {x,y}")
     moveToCursorCoords((TARGET_CURSOR_COORDS),'right')
     time.sleep(0.2)
+    pyautogui.press(CANCEL_TARGET)
 
     hold_time = max(0, duration)
     if hold_time > 0:
-        print(f"Maintien de la touche ESPACE pendant {hold_time:.2f}s")
         pyautogui.press('space')
         time.sleep(hold_time)
         pyautogui.press('space')
     else:
-        print("Pas besoin de propulsion : l'astéroïde est très proche.")
+        print("[INFO] Asteroid is close. No thrust needeed")

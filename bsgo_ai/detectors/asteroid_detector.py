@@ -5,14 +5,16 @@ import cv2
 import sys
 import time
 from pathlib import Path
-from text_from_image import extract_distance_to_asteroid, extract_text
+
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 sys.path.append(str(ROOT_DIR))
 
 from bsgo_ai.config import (ASTEROID_TO_DETECT, DISTANCE_RECTANGLE_TEXT, SCAN, MINERAL_ANALYSIS_TEXT_ZONE, SESSION_TIME,
-                            SHIP_TURNING_SPEED)
-from bsgo_ai.actions.mining import approach_water_asteroid, moveToCursorCoords, approach_nearest_asteroid
+                            SHIP_TURNING_SPEED, PS_MINING)
+from bsgo_ai.mining import approach_water_asteroid, moveToCursorCoords, approach_nearest_asteroid
+from bsgo_ai.detectors.text_from_image import extract_distance_to_asteroid, extract_mineral_analysis
+
 
 YOLOV5_PATH = Path(__file__).resolve().parents[2] / "yolov5"
 MODEL_PATH = Path(__file__).resolve().parents[1] / "models" / "best.pt"
@@ -68,11 +70,11 @@ def detect_asteroid():
                 pyautogui.click()
                 distance_asteroid = extract_distance_to_asteroid(DISTANCE_RECTANGLE_TEXT)
 
-                print(f"Astéroïde détecté : {label} à ({center_x}, {center_y}), distance : {distance_asteroid}, confiance : {conf:.2f}")
+                print(f"Asteroid detected : {label} at ({center_x}, {center_y}), distance : {distance_asteroid}, trust : {conf:.2f}")
 
                 return (center_x, center_y, distance_asteroid)
 
-    print("Aucun astéroïde détecté.")
+    print("No asteroid detected")
     return None
 
 def detect_nearest_asteroid(list_asteroid_temp):
@@ -93,7 +95,7 @@ def detect_nearest_asteroid(list_asteroid_temp):
             nearest_distance = distance
             nearest_coords = (x, y)
 
-    print(f"Nearest asteroid : {nearest_coords}, distance : {nearest_distance}")
+    print(f"[INFO] Nearest asteroid : {nearest_coords}, distance : {nearest_distance}")
 
     return nearest_coords, nearest_distance
 
@@ -101,27 +103,27 @@ def scan_asteroid(coords, scan_key):
     moveToCursorCoords(coords, 'left')
     pyautogui.press(scan_key)
     time.sleep(5.5)
-    return extract_text(MINERAL_ANALYSIS_TEXT_ZONE)
+    return extract_mineral_analysis(MINERAL_ANALYSIS_TEXT_ZONE)
 
 def turning_rotation(ship_turning_speed):
     return (360 / ship_turning_speed) / 4.0
 
 def mining_status(start_time=None, max_duration=None):
+    from player_status import player_status_detection
     full_rotation = 0
     max_quarters = 4
     ship_turning_speed = SHIP_TURNING_SPEED
+    PLAYER_STATUS = PS_MINING
 
     if start_time is None:
         start_time = time.time()
     if max_duration is None:
         max_duration = SESSION_TIME*60
 
-    while full_rotation < max_quarters and time.time() - start_time < max_duration:
+    while (full_rotation < max_quarters and time.time() - start_time < max_duration) and PLAYER_STATUS == PS_MINING:
         attempts = 0
-
-        while attempts < ASTEROID_TO_DETECT:
+        while attempts < ASTEROID_TO_DETECT and PLAYER_STATUS == PS_MINING:
             result = detect_asteroid()
-
             if result is None:
                 attempts += 1
                 continue
@@ -129,38 +131,32 @@ def mining_status(start_time=None, max_duration=None):
             x, y, distance = result
 
             if distance is None or distance > 3000:
-                print(f"Astéroïde ignoré (distance trop grande) : {distance}")
+                print(f"[INFO] Asteroid too far: {distance}")
                 attempts += 1
                 continue
 
             coords = (x, y)
-            print(f"Scan de l'astéroïde à {coords}, distance : {distance}")
+            print(f"[INFO] Scanning asteroid. Distance : {distance}")
             mineral_result = scan_asteroid(coords, SCAN)
 
             if "WATER" in mineral_result.upper():
-                print("Ressource WATER détectée, approche en cours...")
+                print("[INFO] Asteroid water detected. Approaching...")
                 approach_water_asteroid(coords, distance)
-                # Reprise de la boucle après approche
                 return mining_status(start_time, max_duration)
             else:
-                print("Ressource non intéressante, tentative suivante...")
+                print("[INFO] No useful resources, to the next one...")
                 attempts += 1
-                from player_status import player_status_detection
-                player_status_detection()
 
         else:
-            print("Rotation du vaisseau d'un quart de tour...")
+            print("[ACTION] Ship turning...")
             pyautogui.press('c')
             pyautogui.keyDown('q')
             time.sleep(turning_rotation(ship_turning_speed))
             pyautogui.keyUp('q')
             full_rotation += 1
             time.sleep(5)
-            continue  # on passe au prochain quart de tour
 
     print("Recherche terminée : Aucun astéroïde WATER trouvé après un tour complet ou durée dépassée.")
-
-        # Détection et approche de l'astéroïde le plus proche à la fin de la rotation complète
     print("Détection finale : approche de l'astéroïde le plus proche...")
     asteroid_list = []
     for _ in range(ASTEROID_TO_DETECT):
@@ -170,3 +166,5 @@ def mining_status(start_time=None, max_duration=None):
     if asteroid_list:
         coords, distance = detect_nearest_asteroid(asteroid_list)
         approach_nearest_asteroid(coords, distance)
+        PLAYER_STATUS = player_status_detection()
+    return PLAYER_STATUS
