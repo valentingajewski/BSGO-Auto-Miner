@@ -1,5 +1,5 @@
 train: ../data/images/train
 val: ../data/images/train  # ou ../data/images/val
 
-nc: 6
-names: ['asteroid', 'asteroid_no_resource', 'asteroid_titanium', 'asteroid_tylium', 'asteroid_water', 'planetoid']
+nc: 7
+names: ['asteroid', 'asteroid_no_resource', 'asteroid_titanium', 'asteroid_tylium', 'asteroid_water', 'planetoid', 'platform']

@@ -32,7 +32,8 @@ class_names = [
     'asteroid_titanium',
     'asteroid_tylium',
     'asteroid_water',
-    'planetoid'
+    'planetoid',
+    'platform'
 ]
 
 def detect_asteroid():
@@ -59,7 +60,7 @@ def detect_asteroid():
             class_id = int(cls.item())
             label = class_names[class_id]
 
-            if "asteroid" in label:
+            if label == 'asteroid':
                 x1, y1, x2, y2 = map(int, box)
                 center_x = int((x1 + x2) / 2 * scale_x)
                 center_y = int((y1 + y2) / 2 * scale_y)
@@ -105,7 +106,7 @@ def scan_asteroid(coords, scan_key):
 def turning_rotation(ship_turning_speed):
     return (360 / ship_turning_speed) / 4.0
 
-def main(start_time=None, max_duration=None):
+def mining_status(start_time=None, max_duration=None):
     full_rotation = 0
     max_quarters = 4
     ship_turning_speed = SHIP_TURNING_SPEED
@@ -113,7 +114,7 @@ def main(start_time=None, max_duration=None):
     if start_time is None:
         start_time = time.time()
     if max_duration is None:
-        max_duration = SESSION_TIME*60  # Durée par défaut : 10 minutes
+        max_duration = SESSION_TIME*60
 
     while full_rotation < max_quarters and time.time() - start_time < max_duration:
         attempts = 0
@@ -140,10 +141,12 @@ def main(start_time=None, max_duration=None):
                 print("Ressource WATER détectée, approche en cours...")
                 approach_water_asteroid(coords, distance)
                 # Reprise de la boucle après approche
-                return main(start_time, max_duration)
+                return mining_status(start_time, max_duration)
             else:
                 print("Ressource non intéressante, tentative suivante...")
                 attempts += 1
+                from player_status import player_status_detection
+                player_status_detection()
 
         else:
             print("Rotation du vaisseau d'un quart de tour...")
@@ -167,6 +170,3 @@ def main(start_time=None, max_duration=None):
     if asteroid_list:
         coords, distance = detect_nearest_asteroid(asteroid_list)
         approach_nearest_asteroid(coords, distance)
-
-if __name__ == "__main__":
-    main()

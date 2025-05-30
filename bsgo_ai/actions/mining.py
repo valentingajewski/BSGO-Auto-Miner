@@ -108,18 +108,6 @@ def approach_water_asteroid(coords, distance):
     moveToCursorCoords(MINING_GUN2, 'left')
 
 def approach_nearest_asteroid(coords, distance):
-    """
-    Approche automatiquement l'astéroïde d'eau
-
-    - Calcule le temps de parcours avec pc_time.
-    - Lance la séquence de touches pour l'approche.
-
-    :param distance: distance à parcourir (int ou float)
-    :param coords: tuple (x, y) des coordonnées de l'astéroïde
-    :param v_max: vitesse max du vaisseau
-    :param acceleration: accélération du vaisseau
-    """
-
     x, y = coords
     duration = pc_time(distance)
 
