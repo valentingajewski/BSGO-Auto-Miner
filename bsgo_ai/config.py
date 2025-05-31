@@ -29,6 +29,7 @@ SCAN = '&'
 MAP_KEY = 'n'
 ENABLE_ALL_GUNS = 'g'
 CANCEL_TARGET = 'c'
+START_JUMP = 'j'
 
 
 # player status
@@ -56,6 +57,9 @@ DRADIS_CLOSE_BUTTON = (1796,367)
 # combat - killed procedure
 RESPAWN_BUTTON = (1416,1070)
 TIME_BEFORE_RESPAWN_BUTTON_APPEAR = 5
+
+# jump
+FTL_JUMPT_TIME = 20
 
 
 CHOOSE_REWARD_BUTTON = (1298,905)
