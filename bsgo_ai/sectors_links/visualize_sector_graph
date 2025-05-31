@@ -1,0 +1,40 @@
+import json
+import networkx as nx
+import matplotlib.pyplot as plt
+
+# Charger les données depuis le fichier secteurs.json
+with open('bsgo_ai/sectors_links/secteurs.json', 'r') as f:
+    sectors = json.load(f)
+
+# Créer le graphe
+G = nx.Graph()
+
+# Ajout des noeuds avec position
+positions = {}
+for sector in sectors:
+    sector_id = sector['id']
+    sector_name = sector['name']
+    x, y = sector['x'], sector['y']
+    G.add_node(sector_id, label=sector_name)
+    positions[sector_id] = (x, -y)  # inversion de y pour un affichage plus naturel
+
+    # Ajouter les liens si présents
+    for neighbor in sector.get("links", []):
+        G.add_edge(sector_id, neighbor)
+
+# Dessiner le graphe
+plt.figure(figsize=(12, 10))
+nx.draw(
+    G,
+    pos=positions,
+    with_labels=True,
+    labels=nx.get_node_attributes(G, 'label'),
+    node_color="lightgreen",
+    edge_color="gray",
+    node_size=900,
+    font_size=9
+)
+plt.title("Graphique des Connexions entre les Secteurs (avec Coordonnées)")
+plt.axis('off')
+plt.tight_layout()
+plt.show()
