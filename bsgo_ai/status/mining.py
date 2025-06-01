@@ -13,7 +13,7 @@ sys.path.append(str(ROOT_DIR))
 from bsgo_ai.pyautogui_lib import turning_ship, moveToCursorCoords
 from bsgo_ai.config import (ASTEROID_TO_DETECT, DISTANCE_RECTANGLE_TEXT, SCAN, MINERAL_ANALYSIS_TEXT_ZONE,
                             SHIP_TURNING_SPEED, PS_MINING, SHIP_VMAX, SHIP_PC_ACCELERATION, MINING_GUN1, MINING_GUN2, 
-                            TARGET_CURSOR_COORDS, CANCEL_TARGET)
+                            TARGET_CURSOR_COORDS, CANCEL_TARGET, POST_COMBUSTION)
 from bsgo_ai.detectors.text_from_image import extract_distance_to_asteroid, extract_mineral_analysis, extract_text
 
 YOLOV5_PATH = Path(__file__).resolve().parents[2] / "yolov5"
@@ -192,80 +192,67 @@ class Mining():
         else:
             print("[INFO] Asteroid is close. No thrust needeed")
 
-    def mining_status(self, sector_time, start_time=None):
-        full_rotation = 0
-        max_quarters = 4
+    def mining_status(self, sector_time, start_time=None, full_rotation=0):
         ship_turning_speed = SHIP_TURNING_SPEED
         PLAYER_STATUS = PS_MINING
 
         if start_time is None:
             start_time = time.time()
 
-        print(f"[DEBUG] full_rotation: {full_rotation} \nmax_quarters: {max_quarters}\ntime.time: {time.time()}, start_time: {start_time}\nSTATUS: {PLAYER_STATUS}\n{(full_rotation < max_quarters or time.time() - start_time < sector_time) and PLAYER_STATUS == PS_MINING}")
+        # Stop mining if max rotation is reached or session time exceeded or status changed
+        if (full_rotation >= 4 or time.time() - start_time > sector_time) or PLAYER_STATUS != PS_MINING:
+            print(f"[INFO] No valuable asteroids detected after {full_rotation} full rotations.")
 
-        if (full_rotation < max_quarters or time.time() - start_time < sector_time) and PLAYER_STATUS == PS_MINING:
-            print(f'[DEBUG] toto')
-            attempts = 0
-            if attempts < ASTEROID_TO_DETECT and PLAYER_STATUS == PS_MINING:
-                result = self.detect_asteroid()
-                if result is None:
-                    attempts += 1
+            # Final detection attempt: approach the nearest asteroid
+            asteroid_list = [res for _ in range(ASTEROID_TO_DETECT) if (res := self.detect_asteroid()) is not None]
 
-                x, y, distance = result
+            if asteroid_list:
+                coords, distance = self.detect_nearest_asteroid(asteroid_list)
+                self.approach_nearest_asteroid(coords, distance)
 
-                if distance is None or distance > 3000:
-                    print(f"[INFO] Asteroid too far: {distance}")
-                    attempts += 1
-                
+                time.sleep(3)
+                x, y = coords
+                duration = self.pc_time(distance)
 
-                coords = (x, y)
-                print(f"[INFO] Scanning asteroid. Distance : {distance}")
-                mineral_result = self.scan_asteroid(coords, SCAN)
+                if duration == float('inf'):
+                    print("Invalid travel time.")
+                    return
 
-                if "WATER" in mineral_result.upper():
-                    print("[INFO] Asteroid water detected. Approaching...")
-                    self.approach_water_asteroid(coords, distance)
-                    return self.mining_status(sector_time, start_time)
-                else:
-                    print("[INFO] No useful resources, to the next one...")
-                    attempts += 1
-
-            else:
-                turning_ship()
-                full_rotation += 1
-                time.sleep(5)
-
-        print(f"[INFO] No useful resources after {full_rotation} rounds")
-        asteroid_list = []
-        for _ in range(ASTEROID_TO_DETECT):
-            result = self.detect_asteroid()
-            if result is not None:
-                asteroid_list.append(result)
-        if asteroid_list:
-            coords, distance = self.detect_nearest_asteroid(asteroid_list)
-            self.approach_nearest_asteroid(coords, distance)
-
-
-        time.sleep(3)
-
-        x, y = coords
-        duration = pc_time(distance)
-
-        if duration == float('inf'):
-            print("Temps de parcours invalide.")
+                print(f"[ACTION] Final approach in {duration:.2f} seconds")
+                moveToCursorCoords(TARGET_CURSOR_COORDS, 'right')
+                time.sleep(0.2)
+                pyautogui.press(CANCEL_TARGET)
             return
 
-        print(f"[ACTION] Approaching asteroid, estimated arrival in: {duration:.2f}s")
+        # Process detection attempts without while loop
+        def process_attempts(attempts=0):
+            if attempts >= ASTEROID_TO_DETECT:
+                print("[ACTION] Rotating ship by 1/4 turn...")
+                turning_ship(ship_turning_speed)
+                time.sleep(5)
+                return self.mining_status(sector_time, start_time, full_rotation + 1)
 
-        print(f"[DEBUG] Right clicking on coordinates: {x,y}")
-        moveToCursorCoords((TARGET_CURSOR_COORDS),'right')
-        time.sleep(0.2)
-        pyautogui.press(CANCEL_TARGET)
+            result = self.detect_asteroid()
+            if result is None:
+                return process_attempts(attempts + 1)
 
-        hold_time = max(0, duration)
-        if hold_time > 0:
-            pyautogui.press('space')
-            time.sleep(hold_time)
-            pyautogui.press('space')
-        else:
-            print("[INFO] Asteroid is close. No thrust needeed")
+            x, y, distance = result
+            if distance is None or distance > 3000:
+                print(f"[INFO] Asteroid too far: {distance}")
+                return process_attempts(attempts + 1)
+
+            coords = (x, y)
+            print(f"[INFO] Scanning asteroid at {coords}, distance: {distance}")
+            mineral_result = self.scan_asteroid(coords, SCAN)
+
+            if "WATER" in mineral_result.upper():
+                print("[INFO] WATER resource detected, initiating approach...")
+                self.approach_water_asteroid(coords, distance)
+                return self.mining_status(sector_time, start_time, full_rotation)
+            else:
+                print("[INFO] Unwanted resource, moving to next attempt...")
+                return process_attempts(attempts + 1)
+
+        # Start recursive detection
+        process_attempts()
+

@@ -63,7 +63,7 @@ def save_config_file():
 def start_miner():
     if save_config_file():
         try:
-            subprocess.Popen(["python", "bsgo_ai/main.py"])
+            subprocess.Popen(["python", "bsgo_ai/status/main.py"])
         except Exception as e:
             messagebox.showerror("Erreur", f"Impossible de démarrer le script : {e}")
 

@@ -1,9 +1,7 @@
 {
-    "mining_time": 10,
-    "sector_time": 5,
+    "mining_time": 30,
+    "sector_time": 10,
     "sectors": [
-        2,
-        3,
-        6
+        23
     ]
 }

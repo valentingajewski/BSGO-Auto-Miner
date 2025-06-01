@@ -6,7 +6,8 @@ import networkx as nx
 
 from bsgo_ai.pyautogui_lib import moveToCursorCoords
 from bsgo_ai.json_loader import sectors
-from bsgo_ai.config import MAP_KEY, START_JUMP, FTL_JUMP_TIME
+from bsgo_ai.detectors.text_from_image import extract_text
+from bsgo_ai.config import MAP_KEY, START_JUMP, FTL_JUMP_TIME, WING_PLAYER_LOCATION_ZONE, WING_WINDOW
 
 class Sector():
 
@@ -56,6 +57,13 @@ class Sector():
             return False
         else:
             return True
+
+    def extract_sector_from_text(self):
+        pyautogui.press(WING_WINDOW)
+        time.sleep(1)
+        sector_list = extract_text(WING_PLAYER_LOCATION_ZONE)
+        pyautogui.press(WING_WINDOW)
+        return sector_list
 
     def jump(self, id_sector):
 
