@@ -1,0 +1,9 @@
+{
+    "mining_time": 10,
+    "sector_time": 5,
+    "sectors": [
+        2,
+        3,
+        6
+    ]
+}

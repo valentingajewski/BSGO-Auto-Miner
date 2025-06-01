@@ -9,11 +9,11 @@ from pathlib import Path
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 sys.path.append(str(ROOT_DIR))
-
-from bsgo_ai.config import (ASTEROID_TO_DETECT, DISTANCE_RECTANGLE_TEXT, SCAN, MINERAL_ANALYSIS_TEXT_ZONE, SESSION_TIME,
-                            SHIP_TURNING_SPEED, PS_MINING)
+from bsgo_ai.jump import jump, check_sector, ocr_check_sector
+from bsgo_ai.config import (ASTEROID_TO_DETECT, DISTANCE_RECTANGLE_TEXT, SCAN, MINERAL_ANALYSIS_TEXT_ZONE, SECTOR_SESSION_TIME,
+                            SHIP_TURNING_SPEED, PS_MINING, SECTOR_TEXT_POSITION)
 from bsgo_ai.mining import approach_water_asteroid, moveToCursorCoords, approach_nearest_asteroid
-from bsgo_ai.detectors.text_from_image import extract_distance_to_asteroid, extract_mineral_analysis
+from bsgo_ai.detectors.text_from_image import extract_distance_to_asteroid, extract_mineral_analysis, extract_text
 
 
 YOLOV5_PATH = Path(__file__).resolve().parents[2] / "yolov5"
@@ -108,7 +108,7 @@ def scan_asteroid(coords, scan_key):
 def turning_rotation(ship_turning_speed):
     return (360 / ship_turning_speed) / 4.0
 
-def mining_status(start_time=None, max_duration=None):
+def mining_status(sector_time, selected_sector_ids, target_sector_id, start_time=None):
     from player_status import player_status_detection
     full_rotation = 0
     max_quarters = 4
@@ -118,9 +118,9 @@ def mining_status(start_time=None, max_duration=None):
     if start_time is None:
         start_time = time.time()
     if max_duration is None:
-        max_duration = SESSION_TIME*60
+        max_duration = SECTOR_SESSION_TIME*60
 
-    while (full_rotation < max_quarters and time.time() - start_time < max_duration) and PLAYER_STATUS == PS_MINING:
+    while (full_rotation < max_quarters and time.time() - start_time < sector_time) and PLAYER_STATUS == PS_MINING:
         attempts = 0
         while attempts < ASTEROID_TO_DETECT and PLAYER_STATUS == PS_MINING:
             result = detect_asteroid()
@@ -142,7 +142,7 @@ def mining_status(start_time=None, max_duration=None):
             if "WATER" in mineral_result.upper():
                 print("[INFO] Asteroid water detected. Approaching...")
                 approach_water_asteroid(coords, distance)
-                return mining_status(start_time, max_duration)
+                return mining_status(sector_time, selected_sector_ids, start_time)
             else:
                 print("[INFO] No useful resources, to the next one...")
                 attempts += 1
@@ -166,5 +166,7 @@ def mining_status(start_time=None, max_duration=None):
     if asteroid_list:
         coords, distance = detect_nearest_asteroid(asteroid_list)
         approach_nearest_asteroid(coords, distance)
-        PLAYER_STATUS = player_status_detection()
+        PLAYER_STATUS = player_status_detection(target_sector_id)
     return PLAYER_STATUS
+
+

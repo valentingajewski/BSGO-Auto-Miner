@@ -17,12 +17,12 @@ def repair():
     time.sleep(1)
 
 
-def undock():
+def undock(target_sector_id):
     from player_status import player_status_detection
     print("[ACTION] Undocking")
     moveToCursorCoords(UNDOCK_BUTTON, 'left')
     time.sleep(10)
-    return player_status_detection()
+    return player_status_detection(target_sector_id)
 
 def dradis():
     time.sleep(5)

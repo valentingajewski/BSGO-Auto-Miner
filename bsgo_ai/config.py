@@ -1,15 +1,11 @@
-# asteroid_detector
-ASTEROID_TO_DETECT = 10
-SHIP_TURNING_SPEED = 28.88
-MAX_QUARTER = 3
-SESSION_TIME = 10 # In minutes
-
-
 # text_from_image
 DISTANCE_RECTANGLE_TEXT = (455, 84, 40, 20)
 MINERAL_ANALYSIS_TEXT_ZONE = (1140, 117, 280, 30)
 
-# mining.py
+# Mining
+ASTEROID_TO_DETECT = 10
+SHIP_TURNING_SPEED = 28.88
+MAX_QUARTER = 3
 SHIP_VMAX = 63.25
 SHIP_ACCELERATION = 4.6
 SHIP_PC_ACCELERATION = 6.47
@@ -30,6 +26,7 @@ MAP_KEY = 'n'
 ENABLE_ALL_GUNS = 'g'
 CANCEL_TARGET = 'c'
 START_JUMP = 'j'
+WING_WINDOW = 'b'
 
 
 # player status
@@ -59,7 +56,7 @@ RESPAWN_BUTTON = (1416,1070)
 TIME_BEFORE_RESPAWN_BUTTON_APPEAR = 5
 
 # jump
-FTL_JUMPT_TIME = 20
+FTL_JUMP_TIME = 20
 
 
 CHOOSE_REWARD_BUTTON = (1298,905)
@@ -70,3 +67,15 @@ LINE_REWARD = (1579,908)
 
 CHAT_POSITION = (121,1388)
 DND = "/dnd"
+
+# gui_config
+MINING_TIME = "mining_time"
+SECTOR_TIME = "sector_time"
+TIME_MULTIPLICATOR = 60 # time will be in min
+LIST_TARGET_SECTOR = "sectors"
+
+
+SECTORS_JSON_PATH = "bsgo_ai/sectors_links/secteurs.json"
+GUI_CONFIG_JSON_PATH = "gui_config.json"
+
+WING_PLAYER_LOCATION_ZONE = (1454, 637, 150, 25)

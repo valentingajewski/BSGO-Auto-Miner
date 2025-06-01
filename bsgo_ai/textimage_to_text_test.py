@@ -10,9 +10,9 @@ import easyocr
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 # Coordonnées de la zone (x, y, largeur, hauteur)
-zone = (35, 1173, 325, 210)
+zone = (1454, 637, 150, 25)
 
-reader = easyocr.Reader(['en'])
+reader = easyocr.Reader(['en'], gpu=True)
 
 def detect_if_damage_to_player(lines):
     #print(f'[DEBUG] combat_log: {lines}')
@@ -43,8 +43,7 @@ def extract_text(zone):
 
     return result
 if __name__ == "__main__":
-    combat_log = detect_if_damage_to_player(extract_text(zone))
-    print(combat_log)
+    print(extract_text(zone))
 
 """
 while True:

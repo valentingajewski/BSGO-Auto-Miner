@@ -1,6 +1,7 @@
 import json
 import pyautogui
 import time
+from rapidfuzz import process
 import networkx as nx
 
 from mining import moveToCursorCoords
@@ -32,6 +33,34 @@ def shortest_path(start_sector, end_sector):
         print("[ERREUR] Secteur invalide fourni.")
         return []
 
+def ocr_check_sector(ocr_result):
+
+    # Charger les secteurs
+    with open("secteurs.json", "r") as f:
+        sectors = json.load(f)
+
+    sector_names = [s["name"].upper() for s in sectors]
+
+    # Fusionner texte OCR en une seule string
+    input_text = " ".join(ocr_result).upper().strip()
+
+    # Trouver la meilleure correspondance
+    match = process.extractOne(input_text, sector_names, score_cutoff=75)
+    
+    if match:
+        name_matched = match[0]
+        matched_sector = next(s for s in sectors if s["name"].upper() == name_matched)
+        return matched_sector["id"]
+    
+    print("[ERREUR] Aucun secteur reconnu.")
+    return None
+
+def check_sector(current_sector, target_sector):
+    if current_sector != target_sector:
+        return False
+    else:
+        return True
+
 def jump(id_sector):
 
     sector = next((s for s in sectors if s["id"] == id_sector), None)
@@ -53,11 +82,3 @@ def jump(id_sector):
     time.sleep(10)
 
     return None
-
-def main(start_sector):
-    id_sector_list = shortest_path(start_sector,end_sector)
-    for id_sector in id_sector_list:
-        jump(id_sector)
-
-#if __name__ == "__main__":
-    

@@ -7,7 +7,7 @@ from detectors.text_from_image import extract_text
 from combat import combat, killed_procedure
 from base_procedure import repair, undock
 from config import COMBAT_LOG_ZONE, SECTOR_TEXT_POSITION, PS_MINING, PS_IN_COMBAT, PS_INBASE, PS_JUMP, PS_KILLED
-from jump import jump
+from jump import jump, ocr_check_sector, check_sector
 
 def detect_if_damage_to_player(lines):
     """
@@ -31,9 +31,11 @@ def detect_if_player_is_killed(zone):
         if "You have been destroyed" in line:
             return True
 
-def player_status_detection():
+def player_status_detection(target_sector_id):
     combat_log = detect_if_damage_to_player(extract_text(COMBAT_LOG_ZONE))
     sector = extract_text(SECTOR_TEXT_POSITION)
+    is_good_sector = check_sector(ocr_check_sector(sector), target_sector_id)
+
     print(f'[INFO] Sector: {sector}')
     if combat_log >= 2:
         PLAYER_STATUS = PS_IN_COMBAT
@@ -41,33 +43,38 @@ def player_status_detection():
         PLAYER_STATUS = PS_KILLED
     if len(sector) == 0 or len(sector[0]) <= 5:
         PLAYER_STATUS = PS_INBASE
+    if is_good_sector is False:
+        PLAYER_STATUS = PS_JUMP
     else:
         PLAYER_STATUS = PS_MINING
 
     print(f'[INFO] Player Status: {PLAYER_STATUS}')
     return PLAYER_STATUS
 
-def status():
+def status(sector_time, selected_sector_ids, target_sector_id):
     global PLAYER_STATUS
     while True:
         if PLAYER_STATUS == PS_MINING:
-            PLAYER_STATUS = mining_status()
+            PLAYER_STATUS = mining_status(sector_time, selected_sector_ids, target_sector_id)
         elif PLAYER_STATUS == PS_IN_COMBAT:
-            PLAYER_STATUS = combat()
+            PLAYER_STATUS = combat(target_sector_id)
         elif PLAYER_STATUS == PS_KILLED:
-            PLAYER_STATUS = killed_procedure()
+            PLAYER_STATUS = killed_procedure(target_sector_id)
         elif PLAYER_STATUS == PS_INBASE:
             repair()
-            PLAYER_STATUS = undock()
+            PLAYER_STATUS = undock(target_sector_id)
         elif PLAYER_STATUS == PS_JUMP:
-            PLAYER_STATUS = jump()
+            PLAYER_STATUS = jump(target_sector_id)
         else:
             print(PLAYER_STATUS)
         
         print(f'[INFO] Checking status: {PLAYER_STATUS}')
-        player_status_detection()
+        player_status_detection(target_sector_id)
 
-PLAYER_STATUS = player_status_detection()
 
+PLAYER_STATUS = player_status_detection(target_sector_id)
+
+"""
 if __name__ == "__main__":
     status()
+"""
