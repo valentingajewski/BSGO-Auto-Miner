@@ -1,10 +1,5 @@
 # Librairies imports
-import pathlib as Path
-import sys
-import signal
 import time
-import json
-import pyautogui
 
 # Class imports
 from mining import Mining
@@ -28,7 +23,6 @@ current_sector = 0
 sector_start_time = time.time()
 target_sector_id = GUI_CONFIG[LIST_TARGET_SECTOR][current_sector]
 sector_list = sector.extract_sector_from_text()
-
 
 
 def detect_if_damage_to_player(lines):

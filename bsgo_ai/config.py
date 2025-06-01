@@ -79,3 +79,12 @@ SECTORS_JSON_PATH = "bsgo_ai/sectors_links/secteurs.json"
 GUI_CONFIG_JSON_PATH = "gui_config.json"
 
 WING_PLAYER_LOCATION_ZONE = (1454, 637, 150, 25)
+
+
+"""
+def starting_procedure():
+    moveToCursorCoords(CHAT_POSITION, 'left')
+    pyautogui.write(DND)
+    time.sleep(2)
+    moveToCursorCoords(COMBAT_LOG_POSITION_BUTTON)
+"""
