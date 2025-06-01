@@ -53,7 +53,7 @@ def save_config_file():
             "sector_time": sector_time,
             "sectors": selected_ids
         }
-        with open("gui_config.json", "w") as f:
+        with open("bsgo_ai/gui_config.json", "w") as f:
             json.dump(config, f, indent=4)
         return True
     except ValueError as e:
