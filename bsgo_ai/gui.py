@@ -20,11 +20,11 @@ style.map('TButton', background=[('active', '#333')])
 style.configure('TCombobox', fieldbackground='black', background='black', foreground='white')
 
 # Champs utilisateur
-tk.Label(root, text="Mining Duration (s):", fg="white", bg="black", font=("Courier", 10)).pack(pady=5)
+tk.Label(root, text="Mining Duration (min):", fg="white", bg="black", font=("Courier", 10)).pack(pady=5)
 mining_time_entry = tk.Entry(root)
 mining_time_entry.pack(pady=5)
 
-tk.Label(root, text="Sector Duration (s):", fg="white", bg="black", font=("Courier", 10)).pack(pady=5)
+tk.Label(root, text="Sector Duration (min):", fg="white", bg="black", font=("Courier", 10)).pack(pady=5)
 sector_time_entry = tk.Entry(root)
 sector_time_entry.pack(pady=5)
 

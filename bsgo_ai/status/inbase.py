@@ -16,15 +16,12 @@ class InBase():
         moveToCursorCoords(REPAIR_VALIDATION_BUTTON, 'left')
         time.sleep(1)
         moveToCursorCoords(CLOSE_BUTTON, 'left')
-        time.sleep(1)
+        time.sleep(25)
 
-
-    def undock(self, target_sector_id):
-        from bsgo_ai.status.main import player_status_detection
+    def undock(self):
         print("[ACTION] Undocking")
         moveToCursorCoords(UNDOCK_BUTTON, 'left')
         time.sleep(10)
-        return player_status_detection(target_sector_id)
 
     def dradis(self):
         time.sleep(5)

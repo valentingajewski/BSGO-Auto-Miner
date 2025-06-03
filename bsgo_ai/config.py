@@ -4,7 +4,7 @@ MINERAL_ANALYSIS_TEXT_ZONE = (1140, 117, 280, 30)
 
 # Mining
 ASTEROID_TO_DETECT = 10
-SHIP_TURNING_SPEED = 28.88
+SHIP_TURNING_SPEED = 29.15
 MAX_QUARTER = 3
 SHIP_VMAX = 63.25
 SHIP_ACCELERATION = 4.6
@@ -27,6 +27,7 @@ ENABLE_ALL_GUNS = 'g'
 CANCEL_TARGET = 'c'
 START_JUMP = 'j'
 WING_WINDOW = 'b'
+ALIGN_SHIP_TO_HORIZON = '.'
 
 
 # player status
@@ -76,15 +77,6 @@ LIST_TARGET_SECTOR = "sectors"
 
 
 SECTORS_JSON_PATH = "bsgo_ai/sectors_links/secteurs.json"
-GUI_CONFIG_JSON_PATH = "gui_config.json"
+GUI_CONFIG_JSON_PATH = "bsgo_ai/gui_config.json"
 
 WING_PLAYER_LOCATION_ZONE = (1454, 637, 150, 25)
-
-
-"""
-def starting_procedure():
-    moveToCursorCoords(CHAT_POSITION, 'left')
-    pyautogui.write(DND)
-    time.sleep(2)
-    moveToCursorCoords(COMBAT_LOG_POSITION_BUTTON)
-"""
