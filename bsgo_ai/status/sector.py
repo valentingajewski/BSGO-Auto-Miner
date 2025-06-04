@@ -1,6 +1,7 @@
 import json
 import pyautogui
 import time
+from termcolor import colored
 from rapidfuzz import process
 import networkx as nx
 
@@ -89,7 +90,7 @@ class Sector():
         moveToCursorCoords((x,y), 'left')
         pyautogui.press(START_JUMP)
         pyautogui.press(MAP_KEY)
-        print(f"[ACTION] Jumping to {sector['name']}")
+        print(colored(f"[ACTION] Jumping to {sector['name']}", "yellow"))
 
         time.sleep(FTL_JUMP_TIME)
         time.sleep(10)

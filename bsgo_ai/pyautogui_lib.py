@@ -42,9 +42,9 @@ def turn_and_shoot_asteroid():
     time.sleep(1)
     pyautogui.keyUp(TURN_LEFT)
     activate_mining_guns()
-    pyautogui.press(ALIGN_SHIP_TO_HORIZON)
     print("[INFO] Asteroid approach finished")
     time.sleep(20)
+    pyautogui.press(ALIGN_SHIP_TO_HORIZON)
     activate_mining_guns()
 
 def pc_approach(hold_time):

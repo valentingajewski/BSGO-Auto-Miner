@@ -6,6 +6,7 @@ import cv2
 import sys
 import time
 from pathlib import Path
+from termcolor import colored
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 sys.path.append(str(ROOT_DIR))
@@ -73,14 +74,13 @@ class Mining():
                     try:
                         distance_asteroid = extract_distance_to_asteroid(DISTANCE_RECTANGLE_TEXT)
                     except Exception as e:
-                        print(f"[WARNING] Failed to extract distance. Defaulting to 3000. Reason: {e}")
+                        print(colored(f"[WARNING] Failed to extract distance. Defaulting to 3000. Reason: {e}", "red"))
                         distance_asteroid = 3001
 
-                    print(f"Asteroid detected : {label} at ({center_x}, {center_y}), distance : {distance_asteroid}, trust : {conf:.2f}")
-
+                    print(colored(f"[INFO] Asteroid detected : {label} at ({center_x}, {center_y}), distance : {distance_asteroid}, trust : {conf:.2f}", "grey"))
                     return (center_x, center_y, distance_asteroid)
 
-        print("No asteroid detected")
+        print(colored("[WARNING] No asteroid detected", "red"))
         return None
 
     def detect_nearest_asteroid(self, list_asteroid_temp):
@@ -99,8 +99,7 @@ class Mining():
                 nearest_distance = distance
                 nearest_coords = (x, y)
 
-        print(f"[INFO] Nearest asteroid : {nearest_coords}, distance : {nearest_distance}")
-
+        print(colored(f"[INFO] Nearest asteroid : {nearest_coords}, distance : {nearest_distance}", "grey"))
         return nearest_coords, nearest_distance
 
     def scan_asteroid(self, coords, scan_key):
@@ -108,7 +107,7 @@ class Mining():
         pyautogui.press(scan_key)
         time.sleep(5.5)
         return extract_text(MINERAL_ANALYSIS_TEXT_ZONE)
-    
+
     def pc_time(self, distance):
         if distance <= 700:
             return 0.0
@@ -118,7 +117,7 @@ class Mining():
         acceleration = SHIP_PC_ACCELERATION
 
         if acceleration <= 0 or adjusted_distance <= 0:
-            return float('inf')  # Cas non physique ou déjà arrivé
+            return float('inf')
 
         d_accel = (v_max ** 2) / (2 * acceleration)
 
@@ -134,36 +133,31 @@ class Mining():
         x, y = coords
         duration = self.pc_time(distance)
         if duration == float('inf'):
-            print("Temps de parcours invalide.")
+            print(colored("Temps de parcours invalide.", "red"))
             return
-        print(f"[ACTION] Approaching asteroid, estimated arrival in: {duration:.2f}s")
-        print(f"[INFO] Right clicking on coordinates: {x,y}")
-        moveToCursorCoords((TARGET_CURSOR_COORDS),'right')
+        print(colored(f"[ACTION] Approaching asteroid, estimated arrival in: {duration:.2f}s", "yellow"))
+        print(colored(f"[INFO] Right clicking on coordinates: {x,y}", "grey"))
+        moveToCursorCoords((TARGET_CURSOR_COORDS), 'right')
         time.sleep(0.2)
         hold_time = max(0, duration)
         if hold_time > 0:
             pc_approach(hold_time)
         else:
             time.sleep(3)
-            print("[INFO] Asteroid is close. No thrust needeed")
-
+            print(colored("[INFO] Asteroid is close. No thrust needeed", "grey"))
         turn_and_shoot_asteroid()
-
 
     def approach_nearest_asteroid(self, coords, distance):
         time.sleep(3)
-
         x, y = coords
         duration = self.pc_time(distance)
 
         if duration == float('inf'):
-            print("Temps de parcours invalide.")
+            print(colored("Temps de parcours invalide.", "red"))
             return
 
-        print(f"[ACTION] Approaching asteroid, estimated arrival in: {duration:.2f}s")
-
-        print(f"[DEBUG] Right clicking on coordinates: {x,y}")
-        moveToCursorCoords((TARGET_CURSOR_COORDS),'right')
+        print(colored(f"[ACTION] Approaching asteroid, estimated arrival in: {duration:.2f}s", "yellow"))
+        moveToCursorCoords((TARGET_CURSOR_COORDS), 'right')
         time.sleep(0.2)
         pyautogui.press(CANCEL_TARGET)
 
@@ -171,7 +165,7 @@ class Mining():
         if hold_time > 0:
             pc_approach(hold_time)
         else:
-            print("[INFO] Asteroid is close. No thrust needeed")
+            print(colored("[INFO] Asteroid is close. No thrust needeed", "grey"))
 
     def mining_status(self, sector_time, target_sector_id, start_time=None, full_rotation=0):
         ship_turning_speed = SHIP_TURNING_SPEED
@@ -181,8 +175,7 @@ class Mining():
             start_time = time.time()
 
         if (full_rotation >= 4 or time.time() - start_time > sector_time) or PLAYER_STATUS != PS_MINING:
-            print(f"[INFO] No valuable asteroids detected after {full_rotation} full rotations.")
-
+            print(colored(f"[INFO] No valuable asteroids detected after {full_rotation} full rotations.", "grey"))
             asteroid_list = [res for _ in range(ASTEROID_TO_DETECT) if (res := self.detect_asteroid()) is not None]
 
             if asteroid_list:
@@ -192,23 +185,21 @@ class Mining():
                 x, y = coords
                 duration = self.pc_time(distance)
                 if duration == float('inf'):
-                    print("Invalid travel time.")
+                    print(colored("Invalid travel time.", "red"))
                     return
 
-                print(f"[ACTION] Final approach in {duration:.2f} seconds")
+                print(colored(f"[ACTION] Final approach in {duration:.2f} seconds", "yellow"))
                 moveToCursorCoords(TARGET_CURSOR_COORDS, 'right')
                 time.sleep(0.2)
                 pyautogui.press(CANCEL_TARGET)
             return
 
-        # Process detection attempts without while loop
         def process_attempts(attempts=0):
             if attempts >= ASTEROID_TO_DETECT:
-                print("[ACTION] Rotating ship by 1/4 turn...")
+                print(colored("[ACTION] Rotating ship by 1/4 turn...", "yellow"))
                 turning_ship(ship_turning_speed)
                 time.sleep(5)
                 return self.mining_status(sector_time, target_sector_id, start_time, full_rotation + 1)
-
 
             result = self.detect_asteroid()
             if result is None:
@@ -216,22 +207,21 @@ class Mining():
 
             x, y, distance = result
             if distance is None or distance > 3000:
-                print(f"[INFO] Asteroid too far: {distance}")
+                print(colored(f"[INFO] Asteroid too far: {distance}", "grey"))
                 return process_attempts(attempts + 1)
 
             coords = (x, y)
-            print(f"[INFO] Scanning asteroid at {coords}, distance: {distance}")
+            print(colored(f"[INFO] Scanning asteroid at {coords}, distance: {distance}", "grey"))
             mineral_result = self.scan_asteroid(coords, SCAN)
-            print(f"[DEBUG] mineral_result: {mineral_result}")
+            print(colored(f"[INFO] mineral_result: {mineral_result}", "grey"))
 
             for element in mineral_result:
                 if "WATER" in element.upper():
-                    print("[INFO] WATER resource detected, initiating approach...")
+                    print(colored("[INFO] WATER resource detected, initiating approach...", "grey"))
                     self.approach_water_asteroid(coords, distance)
                     return self.mining_status(sector_time, target_sector_id, start_time, full_rotation)
                 else:
-                    print("[INFO] Unwanted resource, moving to next attempt...")
+                    print(colored("[INFO] Unwanted resource, moving to next attempt...", "grey"))
                     return process_attempts(attempts + 1)
 
         process_attempts()
-

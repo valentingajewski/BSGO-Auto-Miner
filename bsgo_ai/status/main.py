@@ -1,5 +1,6 @@
 # Libraries imports
 import time
+from termcolor import colored
 
 # Class imports
 from mining import Mining
@@ -70,21 +71,26 @@ def status(sector_time):
     elif PLAYER_STATUS == PS_JUMP:
         sector_list = sector.extract_sector_from_wing()
         PLAYER_STATUS = sector.jump_shortest_path(sector_list, target_sector_id)
+        print(PLAYER_STATUS)
+
+#starting_procedure()
+PLAYER_STATUS = player_status_detection(target_sector_id)
+
+while time.time() - start_time < mining_session_duration:
+    if PLAYER_STATUS == PS_MINING and time.time() - sector_start_time > mining_sector_session_duration:
         current_sector += 1
-        sector_start_time = time.time()
         try:
             target_sector_id = GUI_CONFIG[LIST_TARGET_SECTOR][current_sector]
         except IndexError:
             current_sector = 0
             target_sector_id = GUI_CONFIG[LIST_TARGET_SECTOR][current_sector]
-        print(PLAYER_STATUS)
-
-starting_procedure()
-PLAYER_STATUS = player_status_detection(target_sector_id)
-
-while time.time() - start_time < mining_session_duration :
-    if time.time() - sector_start_time > mining_sector_session_duration:
         PLAYER_STATUS = PS_JUMP
+        sector_start_time = 0
 
     status(mining_sector_session_duration)
     PLAYER_STATUS = player_status_detection(target_sector_id)
+
+    # Réinitialise sector_start_time si on vient d'arriver dans un bon secteur
+    if PLAYER_STATUS == PS_MINING and sector_start_time == 0:
+        sector_start_time = time.time()
+print("[WARNING] Mining session finished !")
