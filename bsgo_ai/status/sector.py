@@ -8,7 +8,7 @@ import networkx as nx
 from bsgo_ai.pyautogui_lib import moveToCursorCoords
 from bsgo_ai.json_loader import sectors
 from bsgo_ai.detectors.text_from_image import extract_text
-from bsgo_ai.config import MAP_KEY, START_JUMP, FTL_JUMP_TIME, WING_PLAYER_LOCATION_ZONE, WING_WINDOW, PS_MINING
+from bsgo_ai.config import MAP_KEY, START_JUMP, FTL_JUMP_TIME, WING_PLAYER_LOCATION_ZONE, WING_WINDOW, PS_MINING, WARNING_PRINT_COLOR, ACTION_PRINT_COLOR
 
 class Sector():
 
@@ -28,10 +28,10 @@ class Sector():
                 print(f"{sid}: {name}")
             return path[1:]
         except nx.NetworkXNoPath:
-            print("[ERREUR] Aucun chemin disponible entre ces deux secteurs.")
+            print(colored("[WARNING] No path found.", WARNING_PRINT_COLOR))
             return []
         except nx.NodeNotFound:
-            print("[ERREUR] Secteur invalide fourni.")
+            print(colored("[WARNING] Invalid sector given",WARNING_PRINT_COLOR))
             return []
 
     def ocr_check_sector(self, ocr_result):
@@ -49,7 +49,7 @@ class Sector():
             matched_sector = next(s for s in sectors if s["name"].upper() == name_matched)
             return matched_sector["id"]
 
-        print(f"[ERREUR] Aucun secteur reconnu à partir de : '{filtered_text}'")
+        print(colored(f"[WARNING] No sector matched with: '{filtered_text}'", WARNING_PRINT_COLOR))
         return None
 
 
@@ -80,7 +80,7 @@ class Sector():
         sector = next((s for s in sectors if s["id"] == id_sector), None)
 
         if sector is None:
-            print(f"[ERREUR] Secteur ID {id_sector} introuvable.")
+            print(colored(f"[WARNING] ID Sector {id_sector} wrong.", WARNING_PRINT_COLOR))
             return None
 
         x, y = sector["x"], sector["y"]
@@ -90,7 +90,7 @@ class Sector():
         moveToCursorCoords((x,y), 'left')
         pyautogui.press(START_JUMP)
         pyautogui.press(MAP_KEY)
-        print(colored(f"[ACTION] Jumping to {sector['name']}", "yellow"))
+        print(colored(f"[ACTION] Jumping to {sector['name']}", ACTION_PRINT_COLOR))
 
         time.sleep(FTL_JUMP_TIME)
         time.sleep(10)

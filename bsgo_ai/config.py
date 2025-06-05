@@ -14,7 +14,6 @@ MINING_GUN2 = (2431,1281)
 RESET_CURSOR_POSITION = (1200,500)
 TARGET_CURSOR_COORDS = (1292,760)
 
-
 # Keybinding
 POST_COMBUSTION = 'space'
 TURN_LEFT = 'q'
@@ -28,7 +27,8 @@ CANCEL_TARGET = 'c'
 START_JUMP = 'j'
 WING_WINDOW = 'b'
 ALIGN_SHIP_TO_HORIZON = '.'
-
+ARTEMIS_KEY = '"'
+ENTER_KEY = 'enter'
 
 # player status
 PS_MINING = 0
@@ -39,7 +39,6 @@ PS_JUMP = 4
 COMBAT_LOG_POSITION_BUTTON = (321,1407)
 COMBAT_LOG_ZONE = (35, 1173, 325, 210)
 SECTOR_TEXT_POSITION = (6, 10, 100, 12)
-
 
 # base_procedure
 UNDOCK_BUTTON = (1276,36)
@@ -66,7 +65,7 @@ STRIKE_REWARD = (1021,913)
 ESCORT_REWARD = (1305,907)
 LINE_REWARD = (1579,908)
 
-CHAT_POSITION = (121,1388)
+CHAT_POSITION = (95,1371)
 DND = "/dnd"
 
 # gui_config
@@ -74,6 +73,13 @@ MINING_TIME = "mining_time"
 SECTOR_TIME = "sector_time"
 TIME_MULTIPLICATOR = 60 # time will be in min
 LIST_TARGET_SECTOR = "sectors"
+FIRST_CONNECTION = "first_connection"
+START_DELAY = "start_delay"
+START_DELAY_MODE = "mode"
+START_DELAY_NOW = "now"
+START_DELAY_DELAYED = "delayed"
+START_DELAY_DAYS = "days"
+START_DELAY_HOURS = "hours"
 
 
 SECTORS_JSON_PATH = "bsgo_ai/sectors_links/secteurs.json"
@@ -81,11 +87,9 @@ GUI_CONFIG_JSON_PATH = "bsgo_ai/gui_config.json"
 
 WING_PLAYER_LOCATION_ZONE = (1454, 637, 150, 25)
 
+INFO_PRINT_COLOR = 'grey'
+ACTION_PRINT_COLOR = 'yellow'
+WARNING_PRINT_COLOR = 'red'
+WATER_PRINT_COLOR = 'blue'
 
-"""
-def starting_procedure():
-    moveToCursorCoords(CHAT_POSITION, 'left')
-    pyautogui.write(DND)
-    time.sleep(2)
-    moveToCursorCoords(COMBAT_LOG_POSITION_BUTTON)
-"""
+PLAY_BUTTON = (1248, 913)

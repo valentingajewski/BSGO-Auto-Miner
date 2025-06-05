@@ -15,7 +15,8 @@ from bsgo_ai.pyautogui_lib import turning_ship, moveToCursorCoords, turn_and_sho
 from bsgo_ai.detectors.text_from_image import extract_distance_to_asteroid, extract_text
 from bsgo_ai.config import (ASTEROID_TO_DETECT, DISTANCE_RECTANGLE_TEXT, SCAN, MINERAL_ANALYSIS_TEXT_ZONE,
                             SHIP_TURNING_SPEED, PS_MINING, SHIP_VMAX, SHIP_PC_ACCELERATION,
-                            TARGET_CURSOR_COORDS, CANCEL_TARGET)
+                            TARGET_CURSOR_COORDS, CANCEL_TARGET, WARNING_PRINT_COLOR, INFO_PRINT_COLOR, 
+                            ACTION_PRINT_COLOR, WATER_PRINT_COLOR)
 
 YOLOV5_PATH = Path(__file__).resolve().parents[2] / "yolov5"
 MODEL_PATH = Path(__file__).resolve().parents[1] / "models" / "best.pt"
@@ -74,13 +75,13 @@ class Mining():
                     try:
                         distance_asteroid = extract_distance_to_asteroid(DISTANCE_RECTANGLE_TEXT)
                     except Exception as e:
-                        print(colored(f"[WARNING] Failed to extract distance. Defaulting to 3000. Reason: {e}", "red"))
+                        print(colored(f"[WARNING] Failed to extract distance. Defaulting to 3000. Reason: {e}", WARNING_PRINT_COLOR))
                         distance_asteroid = 3001
 
-                    print(colored(f"[INFO] Asteroid detected : {label} at ({center_x}, {center_y}), distance : {distance_asteroid}, trust : {conf:.2f}", "grey"))
+                    print(colored(f"[INFO] Asteroid detected : {label} at ({center_x}, {center_y}), distance : {distance_asteroid}, trust : {conf:.2f}", INFO_PRINT_COLOR))
                     return (center_x, center_y, distance_asteroid)
 
-        print(colored("[WARNING] No asteroid detected", "red"))
+        print(colored("[WARNING] No asteroid detected", WARNING_PRINT_COLOR))
         return None
 
     def detect_nearest_asteroid(self, list_asteroid_temp):
@@ -99,7 +100,7 @@ class Mining():
                 nearest_distance = distance
                 nearest_coords = (x, y)
 
-        print(colored(f"[INFO] Nearest asteroid : {nearest_coords}, distance : {nearest_distance}", "grey"))
+        print(colored(f"[INFO] Nearest asteroid : {nearest_coords}, distance : {nearest_distance}", INFO_PRINT_COLOR))
         return nearest_coords, nearest_distance
 
     def scan_asteroid(self, coords, scan_key):
@@ -133,18 +134,18 @@ class Mining():
         x, y = coords
         duration = self.pc_time(distance)
         if duration == float('inf'):
-            print(colored("Temps de parcours invalide.", "red"))
+            print(colored("[WARNING] Invalid approach time.", WARNING_PRINT_COLOR))
             return
-        print(colored(f"[ACTION] Approaching asteroid, estimated arrival in: {duration:.2f}s", "yellow"))
-        print(colored(f"[INFO] Right clicking on coordinates: {x,y}", "grey"))
+        print(colored(f"[ACTION] Approaching asteroid, estimated arrival in: {duration:.2f}s", ACTION_PRINT_COLOR))
+        print(colored(f"[INFO] Right clicking on coordinates: {x,y}", INFO_PRINT_COLOR))
         moveToCursorCoords((TARGET_CURSOR_COORDS), 'right')
         time.sleep(0.2)
         hold_time = max(0, duration)
         if hold_time > 0:
             pc_approach(hold_time)
         else:
-            time.sleep(3)
-            print(colored("[INFO] Asteroid is close. No thrust needeed", "grey"))
+            time.sleep(5)
+            print(colored("[INFO] Asteroid is close. No thrust needeed", INFO_PRINT_COLOR))
         turn_and_shoot_asteroid()
 
     def approach_nearest_asteroid(self, coords, distance):
@@ -153,10 +154,10 @@ class Mining():
         duration = self.pc_time(distance)
 
         if duration == float('inf'):
-            print(colored("Temps de parcours invalide.", "red"))
+            print(colored("[WARNING] Invalid approach time.", WARNING_PRINT_COLOR))
             return
 
-        print(colored(f"[ACTION] Approaching asteroid, estimated arrival in: {duration:.2f}s", "yellow"))
+        print(colored(f"[ACTION] Approaching asteroid, estimated arrival in: {duration:.2f}s", ACTION_PRINT_COLOR))
         moveToCursorCoords((TARGET_CURSOR_COORDS), 'right')
         time.sleep(0.2)
         pyautogui.press(CANCEL_TARGET)
@@ -165,7 +166,7 @@ class Mining():
         if hold_time > 0:
             pc_approach(hold_time)
         else:
-            print(colored("[INFO] Asteroid is close. No thrust needeed", "grey"))
+            print(colored("[INFO] Asteroid is close. No thrust needeed", INFO_PRINT_COLOR))
 
     def mining_status(self, sector_time, target_sector_id, start_time=None, full_rotation=0):
         ship_turning_speed = SHIP_TURNING_SPEED
@@ -175,7 +176,7 @@ class Mining():
             start_time = time.time()
 
         if (full_rotation >= 4 or time.time() - start_time > sector_time) or PLAYER_STATUS != PS_MINING:
-            print(colored(f"[INFO] No valuable asteroids detected after {full_rotation} full rotations.", "grey"))
+            print(colored(f"[INFO] No valuable asteroids detected after {full_rotation} full rotations.", INFO_PRINT_COLOR))
             asteroid_list = [res for _ in range(ASTEROID_TO_DETECT) if (res := self.detect_asteroid()) is not None]
 
             if asteroid_list:
@@ -185,10 +186,10 @@ class Mining():
                 x, y = coords
                 duration = self.pc_time(distance)
                 if duration == float('inf'):
-                    print(colored("Invalid travel time.", "red"))
+                    print(colored("[WARNING] Invalid travel time.", WARNING_PRINT_COLOR))
                     return
 
-                print(colored(f"[ACTION] Final approach in {duration:.2f} seconds", "yellow"))
+                print(colored(f"[ACTION] Final approach in {duration:.2f} seconds", ACTION_PRINT_COLOR))
                 moveToCursorCoords(TARGET_CURSOR_COORDS, 'right')
                 time.sleep(0.2)
                 pyautogui.press(CANCEL_TARGET)
@@ -196,7 +197,7 @@ class Mining():
 
         def process_attempts(attempts=0):
             if attempts >= ASTEROID_TO_DETECT:
-                print(colored("[ACTION] Rotating ship by 1/4 turn...", "yellow"))
+                print(colored("[ACTION] Rotating ship by 1/4 turn...", ACTION_PRINT_COLOR))
                 turning_ship(ship_turning_speed)
                 time.sleep(5)
                 return self.mining_status(sector_time, target_sector_id, start_time, full_rotation + 1)
@@ -207,21 +208,21 @@ class Mining():
 
             x, y, distance = result
             if distance is None or distance > 3000:
-                print(colored(f"[INFO] Asteroid too far: {distance}", "grey"))
+                print(colored(f"[INFO] Asteroid too far: {distance}", INFO_PRINT_COLOR))
                 return process_attempts(attempts + 1)
 
             coords = (x, y)
-            print(colored(f"[INFO] Scanning asteroid at {coords}, distance: {distance}", "grey"))
+            print(colored(f"[INFO] Scanning asteroid at {coords}, distance: {distance}", INFO_PRINT_COLOR))
             mineral_result = self.scan_asteroid(coords, SCAN)
-            print(colored(f"[INFO] mineral_result: {mineral_result}", "grey"))
+            print(colored(f"[INFO] mineral_result: {mineral_result}", INFO_PRINT_COLOR))
 
             for element in mineral_result:
                 if "WATER" in element.upper():
-                    print(colored("[INFO] WATER resource detected, initiating approach...", "grey"))
+                    print(colored("[INFO] WATER resource detected, initiating approach...", WATER_PRINT_COLOR))
                     self.approach_water_asteroid(coords, distance)
                     return self.mining_status(sector_time, target_sector_id, start_time, full_rotation)
                 else:
-                    print(colored("[INFO] Unwanted resource, moving to next attempt...", "grey"))
+                    print(colored("[INFO] Unwanted resource, moving to next attempt...", INFO_PRINT_COLOR))
                     return process_attempts(attempts + 1)
 
         process_attempts()

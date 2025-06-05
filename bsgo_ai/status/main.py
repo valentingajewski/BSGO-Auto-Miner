@@ -1,5 +1,6 @@
 # Libraries imports
 import time
+from datetime import datetime, timedelta
 from termcolor import colored
 
 # Class imports
@@ -9,9 +10,12 @@ from sector import Sector
 from combat import Combat
 
 # Config/files imports
-from bsgo_ai.pyautogui_lib import starting_procedure
-from bsgo_ai.config import (SECTOR_TEXT_POSITION, PS_MINING, PS_INBASE, PS_JUMP, LIST_TARGET_SECTOR)
-from bsgo_ai.json_loader import start_time, mining_sector_session_duration, mining_session_duration, GUI_CONFIG
+from bsgo_ai.pyautogui_lib import dnd, get_reward, launch_game
+from bsgo_ai.config import (SECTOR_TEXT_POSITION, PS_MINING, PS_INBASE, PS_JUMP, LIST_TARGET_SECTOR,
+                            INFO_PRINT_COLOR, WARNING_PRINT_COLOR, START_DELAY_MODE, START_DELAY_HOURS,
+                            START_DELAY_DAYS, START_DELAY_DELAYED)
+from bsgo_ai.json_loader import (start_time, mining_sector_session_duration, mining_session_duration, 
+                                 first_connection, GUI_CONFIG, start_delay)
 from bsgo_ai.detectors.text_from_image import extract_text
 
 # Class instances
@@ -41,7 +45,7 @@ def detect_if_player_is_killed(zone):
 
 def detect_if_in_right_sector(target_sector_id):
     sector_list = sector.extract_sector_from_wing()
-    print(f'[INFO] Sector: {sector_list}')
+    print(colored(f'[INFO] Sector: {sector_list}', INFO_PRINT_COLOR))
     is_good_sector = sector.check_sector(sector.ocr_check_sector(sector_list), target_sector_id)
     return is_good_sector
 
@@ -71,26 +75,49 @@ def status(sector_time):
     elif PLAYER_STATUS == PS_JUMP:
         sector_list = sector.extract_sector_from_wing()
         PLAYER_STATUS = sector.jump_shortest_path(sector_list, target_sector_id)
-        print(PLAYER_STATUS)
 
-#starting_procedure()
-PLAYER_STATUS = player_status_detection(target_sector_id)
+if __name__ == "__main__":
 
-while time.time() - start_time < mining_session_duration:
-    if PLAYER_STATUS == PS_MINING and time.time() - sector_start_time > mining_sector_session_duration:
-        current_sector += 1
-        try:
-            target_sector_id = GUI_CONFIG[LIST_TARGET_SECTOR][current_sector]
-        except IndexError:
-            current_sector = 0
-            target_sector_id = GUI_CONFIG[LIST_TARGET_SECTOR][current_sector]
-        PLAYER_STATUS = PS_JUMP
-        sector_start_time = 0
+    if start_delay[START_DELAY_MODE] == START_DELAY_DELAYED:
+        days = start_delay.get(START_DELAY_DAYS, 0)
+        hours = start_delay.get(START_DELAY_HOURS, 0)
+        total_seconds = (days * 24 + hours) * 3600
 
-    status(mining_sector_session_duration)
+        start_time = datetime.now() + timedelta(seconds=total_seconds)
+        formatted_time = start_time.strftime("%Y-%m-%d %H:%M:%S")
+
+        print(colored(f"[INFO] Delayed start activated: mining will begin in {days} day(s) and {hours} hour(s).", "grey"))
+        print(colored(f"[INFO] Scheduled start time: {formatted_time}", "grey"))
+
+        time.sleep(total_seconds)
+    else:
+        print(colored("[INFO] Immediate start.", "grey"))
+
+    launch_game()
+
+    if first_connection is True:
+        time.sleep(1)
+        get_reward()
+        time.sleep(1)
+
+    dnd()
+
     PLAYER_STATUS = player_status_detection(target_sector_id)
 
-    # Réinitialise sector_start_time si on vient d'arriver dans un bon secteur
-    if PLAYER_STATUS == PS_MINING and sector_start_time == 0:
-        sector_start_time = time.time()
-print("[WARNING] Mining session finished !")
+    while time.time() - start_time < mining_session_duration:
+        if PLAYER_STATUS == PS_MINING and time.time() - sector_start_time > mining_sector_session_duration:
+            current_sector += 1
+            try:
+                target_sector_id = GUI_CONFIG[LIST_TARGET_SECTOR][current_sector]
+            except IndexError:
+                current_sector = 0
+                target_sector_id = GUI_CONFIG[LIST_TARGET_SECTOR][current_sector]
+            PLAYER_STATUS = PS_JUMP
+            sector_start_time = 0
+
+        status(mining_sector_session_duration)
+        PLAYER_STATUS = player_status_detection(target_sector_id)
+
+        if PLAYER_STATUS == PS_MINING and sector_start_time == 0:
+            sector_start_time = time.time()
+    print(colored("[WARNING] Mining session finished !",WARNING_PRINT_COLOR))

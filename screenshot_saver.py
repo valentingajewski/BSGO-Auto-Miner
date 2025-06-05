@@ -3,9 +3,9 @@ import os
 import pyautogui
 
 # === PARAMÈTRES À CONFIGURER ===
-nom_secteur = "gemino"             # Nom du secteur (ex: Pallas, Canceron, etc.)
+nom_secteur = "serpentos"             # Nom du secteur (ex: Pallas, Canceron, etc.)
 intervalle = 5                     # Temps entre chaque screenshot (en secondes)
-dossier_sortie = "sector_images"     # Dossier de destination
+dossier_sortie = "D:\Dossiers perso\Programmation\BSGO_sector_images"     # Dossier de destination
 nombre_max_captures = 100          # Nombre de screenshots avant arrêt (ou utilise Ctrl+C pour l'arrêter)
 
 # === CRÉATION DU DOSSIER SI NÉCESSAIRE ===
