@@ -63,4 +63,4 @@ def get_reward():
 
 def launch_game():
     moveToCursorCoords(PLAY_BUTTON, 'left')
-    time.sleep(20)
+    time.sleep(30)

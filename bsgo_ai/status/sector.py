@@ -93,6 +93,6 @@ class Sector():
         print(colored(f"[ACTION] Jumping to {sector['name']}", ACTION_PRINT_COLOR))
 
         time.sleep(FTL_JUMP_TIME)
-        time.sleep(10)
+        time.sleep(20)
 
         return None

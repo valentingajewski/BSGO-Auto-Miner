@@ -80,6 +80,7 @@ START_DELAY_NOW = "now"
 START_DELAY_DELAYED = "delayed"
 START_DELAY_DAYS = "days"
 START_DELAY_HOURS = "hours"
+START_DELAY_MINUTES = "minutes"
 
 
 SECTORS_JSON_PATH = "bsgo_ai/sectors_links/secteurs.json"
@@ -92,4 +93,4 @@ ACTION_PRINT_COLOR = 'yellow'
 WARNING_PRINT_COLOR = 'red'
 WATER_PRINT_COLOR = 'blue'
 
-PLAY_BUTTON = (1248, 913)
+PLAY_BUTTON = (1275, 917)

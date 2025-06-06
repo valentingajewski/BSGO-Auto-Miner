@@ -74,6 +74,11 @@ hours_entry = tk.Entry(delay_frame, width=5)
 hours_entry.insert(0, "0")
 hours_entry.grid(row=0, column=3)
 
+tk.Label(delay_frame, text="Minutes:", fg="white", bg="black", font=("Courier", 10)).grid(row=0, column=4, padx=5)
+minutes_entry = tk.Entry(delay_frame, width=5)
+minutes_entry.insert(0, "0")
+minutes_entry.grid(row=0, column=5)
+
 
 # Fonctions
 def get_selected_sector_ids():
@@ -94,14 +99,15 @@ def save_config_file():
         if not selected_ids:
             raise ValueError("Aucun secteur sélectionné.")
 
-        # Récupération de l'option de démarrage
+        # Récupération de l'option de démarrage     
         if start_option_var.get() == "now":
             start_delay = {"mode": "now"}
         else:
             try:
                 days = int(days_entry.get())
                 hours = int(hours_entry.get())
-                start_delay = {"mode": "delayed", "days": days, "hours": hours}
+                minutes = int(minutes_entry.get())
+                start_delay = {"mode": "delayed", "days": days, "hours": hours, "minutes": minutes}
             except ValueError:
                 raise ValueError("Veuillez entrer un nombre entier pour les jours et les heures.")
 
