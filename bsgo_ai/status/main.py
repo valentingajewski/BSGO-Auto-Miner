@@ -70,7 +70,17 @@ def status(sector_time):
         PLAYER_STATUS = player_status_detection(target_sector_id)
         print(colored(f"[DEBUG] Player Info Id: {PLAYER_STATUS}", INFO_PRINT_COLOR))
     elif PLAYER_STATUS == PS_JUMP:
-        sector_list = sector.extract_sector_from_wing()
+        sector_list = []
+        current_player_sector = None
+
+        while not sector_list or current_player_sector is None:
+            sector_list = sector.extract_sector_from_wing()
+            current_player_sector = sector.ocr_check_sector(sector_list)
+            
+            if not sector_list or current_player_sector is None:
+                print(colored("[WARNING] Sector not recognized, retrying...", WARNING_PRINT_COLOR))
+                time.sleep(2)
+
         PLAYER_STATUS = sector.jump_shortest_path(sector_list, target_sector_id)
 
 if __name__ == "__main__":
@@ -119,3 +129,4 @@ if __name__ == "__main__":
         if PLAYER_STATUS == PS_MINING and sector_start_time == 0:
             sector_start_time = time.time()
     print(colored("[WARNING] Mining session finished !",WARNING_PRINT_COLOR))
+    quit()

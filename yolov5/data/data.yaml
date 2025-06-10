@@ -1,0 +1,14 @@
+train: ../data/images/train
+val: ../data/images/val
+test: ../data/images/test
+
+
+nc: 7
+names: ['asteroid', 'asteroid_no_resource', 'asteroid_titanium', 'asteroid_tylium', 'asteroid_water', 'planetoid', 'platform']
+
+roboflow:
+  workspace: bsgo-ia
+  project: bsgo-asteroid-detection
+  version: 6
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/bsgo-ia/bsgo-asteroid-detection/dataset/6

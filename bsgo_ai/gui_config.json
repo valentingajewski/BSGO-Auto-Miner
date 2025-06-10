@@ -1,15 +1,14 @@
 {
-    "mining_time": 120,
+    "mining_time": 300,
     "sector_time": 45,
     "sectors": [
         13,
+        18,
+        16,
         12
     ],
     "first_connection": true,
     "start_delay": {
-        "mode": "delayed",
-        "days": 0,
-        "hours": 0,
-        "minutes": 1
+        "mode": "now"
     }
 }

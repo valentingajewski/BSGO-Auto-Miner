@@ -4,7 +4,7 @@ MINERAL_ANALYSIS_TEXT_ZONE = (1140, 117, 280, 30)
 
 # Mining
 ASTEROID_TO_DETECT = 10
-SHIP_TURNING_SPEED = 29.43
+SHIP_TURNING_SPEED = 30.25
 MAX_QUARTER = 3
 SHIP_VMAX = 63.25
 SHIP_ACCELERATION = 4.6
@@ -83,12 +83,12 @@ START_DELAY_HOURS = "hours"
 START_DELAY_MINUTES = "minutes"
 
 
-SECTORS_JSON_PATH = "bsgo_ai/sectors_links/secteurs.json"
-GUI_CONFIG_JSON_PATH = "bsgo_ai/gui_config.json"
+SECTORS_JSON_PATH = "d:/Dossiers perso/Programmation/BSGO_AutoMiner/bsgo_ai/sectors_links/secteurs.json"
+GUI_CONFIG_JSON_PATH = "d:/Dossiers perso/Programmation/BSGO_AutoMiner/bsgo_ai/gui_config.json"
 
 WING_PLAYER_LOCATION_ZONE = (1454, 637, 150, 25)
 
-INFO_PRINT_COLOR = 'grey'
+INFO_PRINT_COLOR = 'white'
 ACTION_PRINT_COLOR = 'yellow'
 WARNING_PRINT_COLOR = 'red'
 WATER_PRINT_COLOR = 'blue'

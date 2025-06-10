@@ -140,7 +140,7 @@ def start_miner():
 
 def save_only():
     if save_config_file():
-        messagebox.showinfo("Succès", "Configuration sauvegardée.")
+        messagebox.showinfo("Succès", "Config saved")
 
 # Boutons
 ttk.Button(root, text="Start", command=start_miner).pack(pady=20, ipadx=10, ipady=5)
