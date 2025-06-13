@@ -10,7 +10,7 @@ from sector import Sector
 from combat import Combat
 
 # Config/files imports
-from bsgo_ai.pyautogui_lib import dnd, get_reward, launch_game
+from bsgo_ai.pyautogui_lib import dnd, get_reward, launch_game, exit_game
 from bsgo_ai.config import (SECTOR_TEXT_POSITION, PS_MINING, PS_INBASE, PS_JUMP, LIST_TARGET_SECTOR,
                             INFO_PRINT_COLOR, WARNING_PRINT_COLOR, START_DELAY_MODE, START_DELAY_HOURS,
                             START_DELAY_DAYS, START_DELAY_DELAYED, START_DELAY_MINUTES)
@@ -129,4 +129,5 @@ if __name__ == "__main__":
         if PLAYER_STATUS == PS_MINING and sector_start_time == 0:
             sector_start_time = time.time()
     print(colored("[WARNING] Mining session finished !",WARNING_PRINT_COLOR))
+    exit_game()
     quit()

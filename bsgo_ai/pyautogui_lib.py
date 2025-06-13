@@ -4,7 +4,7 @@ from termcolor import colored
 from bsgo_ai.config import (CANCEL_TARGET, TURN_LEFT, ENABLE_ALL_GUNS, POST_COMBUSTION, PITCH_UP, 
                             CHAT_POSITION, DND, MINING_GUN1, MINING_GUN2, ALIGN_SHIP_TO_HORIZON,
                             CHOOSE_REWARD_BUTTON, ESCORT_REWARD, INFO_PRINT_COLOR, ARTEMIS_KEY,
-                            ENTER_KEY, PLAY_BUTTON)
+                            ENTER_KEY, PLAY_BUTTON, OPTION_BUTTON, EXIT_GAME, YES_BUTTON)
 
 def turning_rotation(ship_turning_speed):
     return (360 / ship_turning_speed) / 4.0
@@ -64,3 +64,10 @@ def get_reward():
 def launch_game():
     moveToCursorCoords(PLAY_BUTTON, 'left')
     time.sleep(30)
+
+def exit_game():
+    moveToCursorCoords(OPTION_BUTTON, 'left')
+    time.sleep(0.5)
+    moveToCursorCoords(EXIT_GAME, 'left')
+    time.sleep(0.5)
+    moveToCursorCoords(YES_BUTTON, 'left')

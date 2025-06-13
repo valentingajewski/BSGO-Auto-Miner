@@ -1,0 +1,10 @@
+pytesseract
+pyautogui
+opencv-python
+numpy
+easyocr
+pynput
+termcolor
+torch
+rapidfuzz
+networkx
