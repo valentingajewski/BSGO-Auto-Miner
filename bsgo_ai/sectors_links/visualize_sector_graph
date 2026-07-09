@@ -3,7 +3,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 # Charger les données depuis le fichier secteurs.json
-with open('bsgo_ai/sectors_links/secteurs.json', 'r') as f:
+with open('bsgo_ai/sectors_links/sectors_exodus.json', 'r') as f:
     sectors = json.load(f)
 
 # Créer le graphe
