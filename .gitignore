@@ -1,0 +1,9 @@
+yolov5/
+.vscode/
+.tox/
+.idea/
+.github/
+.cometml-runs/
+*.png
+*.pt
+bsgo_ai/__pycache__/

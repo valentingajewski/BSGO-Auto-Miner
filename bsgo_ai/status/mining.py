@@ -40,6 +40,16 @@ class_names = [
     'platform'
 ]
 
+# Plain (no ANSI) cumulative counters emitted for the GUI live stats bar.
+_MINING_STATS = {"scanned": 0, "water": 0, "tylium": 0, "titanium": 0}
+
+
+def _emit_mining_stats():
+    print(f"[STAT] scanned={_MINING_STATS['scanned']} "
+          f"water={_MINING_STATS['water']} "
+          f"tylium={_MINING_STATS['tylium']} "
+          f"titanium={_MINING_STATS['titanium']}", flush=True)
+
 class Mining():
 
     def detect_asteroid(self):
@@ -215,6 +225,16 @@ class Mining():
             print(colored(f"[INFO] Scanning asteroid at {coords}, distance: {distance}", INFO_PRINT_COLOR))
             mineral_result = self.scan_asteroid(coords, SCAN)
             print(colored(f"[INFO] mineral_result: {mineral_result}", INFO_PRINT_COLOR))
+
+            _MINING_STATS["scanned"] += 1
+            joined_minerals = " ".join(str(e) for e in mineral_result).upper()
+            if "WATER" in joined_minerals:
+                _MINING_STATS["water"] += 1
+            elif "TYLIUM" in joined_minerals:
+                _MINING_STATS["tylium"] += 1
+            elif "TITANIUM" in joined_minerals:
+                _MINING_STATS["titanium"] += 1
+            _emit_mining_stats()
 
             for element in mineral_result:
                 if "WATER" in element.upper():

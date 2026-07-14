@@ -1,15 +1,12 @@
 {
-    "mining_time": 420,
-    "sector_time": 45,
+    "server": "Exodus",
+    "mining_time": 30,
+    "sector_time": 30,
     "sectors": [
-        12,
-        13
+        17
     ],
-    "first_connection": true,
+    "first_connection": false,
     "start_delay": {
-        "mode": "now",
-        "days": 0,
-        "hours": 0,
-        "minutes": 0
+        "mode": "now"
     }
 }

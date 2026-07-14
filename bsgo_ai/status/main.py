@@ -40,6 +40,7 @@ def detect_if_damage_to_player(lines):
 def detect_if_in_right_sector(target_sector_id):
     sector_list = sector.extract_sector_from_wing()
     print(colored(f'[INFO] Sector: {sector_list}', INFO_PRINT_COLOR))
+    print(f"[STAT] sector={sector_list}", flush=True)
     is_good_sector = sector.check_sector(sector.ocr_check_sector(sector_list), target_sector_id)
     return is_good_sector
 

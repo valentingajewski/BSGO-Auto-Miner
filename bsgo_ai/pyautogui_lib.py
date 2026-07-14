@@ -4,7 +4,7 @@ from termcolor import colored
 from bsgo_ai.config import (CANCEL_TARGET, TURN_LEFT, ENABLE_ALL_GUNS, POST_COMBUSTION, PITCH_UP, 
                             CHAT_POSITION, DND, MINING_GUN1, MINING_GUN2, ALIGN_SHIP_TO_HORIZON,
                             CHOOSE_REWARD_BUTTON, ESCORT_REWARD, INFO_PRINT_COLOR, ARTEMIS_KEY,
-                            ENTER_KEY, PLAY_BUTTON, OPTION_BUTTON, EXIT_GAME, YES_BUTTON)
+                            ENTER_KEY, PLAY_BUTTON, OPTION_BUTTON, EXIT_GAME, YES_BUTTON, SERVER)
 
 def turning_rotation(ship_turning_speed):
     return (360 / ship_turning_speed) / 4.0
@@ -49,7 +49,8 @@ def turn_and_shoot_asteroid():
     activate_mining_guns()
     time.sleep(20)
     pyautogui.press(ALIGN_SHIP_TO_HORIZON)
-    activate_mining_guns()
+    if SERVER != "Exodus":
+        activate_mining_guns()
 
 def pc_approach(hold_time):
     pyautogui.press(POST_COMBUSTION)

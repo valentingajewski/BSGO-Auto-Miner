@@ -87,9 +87,31 @@ START_DELAY_DAYS = "days"
 START_DELAY_HOURS = "hours"
 START_DELAY_MINUTES = "minutes"
 
+import json, os
 
-SECTORS_JSON_PATH = "d:/Dossiers perso/Programmation/BSGO_AutoMiner/bsgo_ai/sectors_links/secteurs.json"
-GUI_CONFIG_JSON_PATH = "d:/Dossiers perso/Programmation/BSGO_AutoMiner/bsgo_ai/gui_config.json"
+GUI_CONFIG_JSON_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "gui_config.json")
+
+def _get_sectors_json_path():
+    try:
+        with open(GUI_CONFIG_JSON_PATH, 'r') as f:
+            cfg = json.load(f)
+        server = cfg.get("server", "Exodus")
+    except Exception:
+        server = "Exodus"
+    filename = "sectors_exodus.json" if server == "Exodus" else "secteurs_memento.json"
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), "sectors_links", filename)
+
+def _get_server():
+    try:
+        with open(GUI_CONFIG_JSON_PATH, 'r') as f:
+            cfg = json.load(f)
+        return cfg.get("server", "Exodus")
+    except Exception:
+        return "Exodus"
+
+SERVER = _get_server()
+
+SECTORS_JSON_PATH = _get_sectors_json_path()
 
 WING_PLAYER_LOCATION_ZONE = (1454, 637, 150, 25)
 
